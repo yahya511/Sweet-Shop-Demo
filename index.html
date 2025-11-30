@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>مشروع الحلويات — النسخة المتكاملة (Advanced)</title>
+
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Lottie Player for Success Animation -->
+<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
+<style>
+:root{
+    --bg:#F8FAFC; --text:#0F172A; --muted:#64748B;
+    --l1:#78350F; /* Brown */
+    --l2:#0369A1; /* Blue */
+    --l3:#15803D; /* Green */
+    --accent:#F59E0B; --danger:#EF4444; --success:#22C55E;
+    --card-shadow:0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    --modal-overlay:rgba(0,0,0,0.6);
+    --offline-bg:rgba(255,255,255,0.85);
+}
+:root.dark{
+    --bg:#0F172A; --text:#F1F5F9; --muted:#94A3B8;
+    --card-shadow:0 4px 6px -1px rgba(0,0,0,0.5);
+    --modal-overlay:rgba(0,0,0,0.85);
+    --offline-bg:rgba(15,23,42,0.9);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Tajawal',sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:50px;transition:background .3s,color .3s;overflow-x:hidden}
+button,select,input,textarea{font-family:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+
+/* --- Presentation Mode --- */
+body.presentation .topbar { display: none; }
+body.presentation .admin-side { display: none; }
+body.presentation .container { max-width: 100%; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 0; margin: 0; }
+body.presentation .frame.mobile { transform: scale(1.1); box-shadow: 0 20px 50px rgba(0,0,0,0.3); border-width: 0; border-radius: 0; width: 100%; height: 100vh; max-width: 480px; border-radius: 20px; }
+body.presentation #exit-pres-btn { display: block; }
+
+#exit-pres-btn {
+    display: none; position: fixed; bottom: 20px; right: 20px; 
+    background: rgba(0,0,0,0.5); color: #fff; border: none; 
+    padding: 10px 20px; border-radius: 30px; z-index: 9999;
+}
+
+/* --- Top Bar --- */
+.topbar{
+    position:sticky;top:0;z-index:900;background:rgba(255,255,255,0.95);
+    backdrop-filter:blur(8px);border-bottom:1px solid rgba(0,0,0,0.05);
+    padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.dark .topbar{background:rgba(15,23,42,0.95);border-color:rgba(255,255,255,0.05)}
+
+.level-tabs{display:flex;gap:8px;justify-content:center;flex:1}
+.lvl-btn{
+    padding:6px 14px;border-radius:99px;border:1px solid transparent;font-weight:700;font-size:0.85rem;
+    background:transparent;color:var(--text);transition:all .2s;white-space:nowrap;
+}
+.lvl-btn:hover{background:rgba(0,0,0,0.05)}
+.lvl-btn.active{color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.15);transform:translateY(-1px)}
+.lvl-btn[data-lvl="1"].active{background:var(--l1)}
+.lvl-btn[data-lvl="2"].active{background:var(--l2)}
+.lvl-btn[data-lvl="3"].active{background:var(--l3)}
+
+.toggle-btn{width:36px;height:36px;border-radius:8px;border:1px solid rgba(0,0,0,0.1);background:transparent;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:0.2s}
+.toggle-btn:hover{background:rgba(0,0,0,0.05)}
+.dark .toggle-btn{border-color:rgba(255,255,255,0.1);color:#fff}
+
+/* --- Banner Notification --- */
+#banner {
+    position: fixed; top: 70px; left: 50%; transform: translateX(-50%) translateY(-100px);
+    background: #334155; color: #fff; padding: 10px 24px; border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 20000; font-weight: 600;
+    opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex; align-items: center; gap: 8px; font-size: 0.9rem;
+}
+#banner.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.dark #banner { background: #E2E8F0; color: #0F172A; }
+
+/* --- Layout --- */
+.container{max-width:1300px;margin:20px auto;padding:0 16px}
+.level-container{display:none;animation:fadeIn .4s ease}
+.level-container.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.workspace{display:flex;gap:20px;align-items:flex-start}
+.client-side{flex:0 0 380px;display:flex;justify-content:center}
+.admin-side{flex:1;min-width:0}
+@media(max-width:900px){.workspace{flex-direction:column;align-items:center}.client-side{width:100%}.admin-side{width:100%}}
+
+/* --- Frames --- */
+.frame{
+    background:#fff;border-radius:30px;box-shadow:var(--card-shadow);
+    border:8px solid #334155;overflow:hidden;display:flex;flex-direction:column;
+    position:relative; transition: all 0.3s;
+}
+.dark .frame{background:#1E293B;border-color:#0F172A}
+.frame.mobile{width:360px;height:720px;border-radius:40px;border-width:12px}
+.frame.tablet{width:100%;min-height:650px;border-radius:20px;border-width:12px}
+
+/* --- Offline Overlay --- */
+.offline-overlay {
+    position: absolute; inset: 0; background: var(--offline-bg);
+    backdrop-filter: blur(5px); z-index: 500;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 20px; opacity: 0; pointer-events: none; transition: 0.3s;
+}
+.offline-overlay.active { opacity: 1; pointer-events: all; }
+.closed-icon { font-size: 4rem; margin-bottom: 20px; color: var(--danger); }
+
+/* --- Success Animation Layer --- */
+#success-anim-container {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000;
+    display: none; align-items: center; justify-content: center; flex-direction: column;
+}
+#success-anim-container.active { display: flex; animation: fadeIn 0.3s; }
+#success-text { color: #fff; font-size: 1.5rem; font-weight: bold; margin-top: -20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+
+/* --- App Internal --- */
+.app-header{
+    padding:14px 16px;color:#fff;display:flex;align-items:center;justify-content:space-between;
+    font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,0.1);flex-shrink:0;
+}
+.app-body{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:12px;background:#F1F5F9}
+.dark .app-body{background:#0F172A}
+.app-nav{background:#fff;padding:8px 0;border-top:1px solid rgba(0,0,0,0.05);display:flex;justify-content:space-around;align-items:center;flex-shrink:0}
+.dark .app-nav{background:#1E293B;border-color:rgba(255,255,255,0.05)}
+
+/* --- UI Elements --- */
+.card{background:#fff;padding:12px;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.05);position:relative}
+.dark .card{background:#334155;color:#fff}
+.product-card{display:flex;gap:12px;align-items:flex-start}
+.p-img{width:80px;height:80px;border-radius:12px;background:#ddd;object-fit:cover;cursor:pointer}
+.p-info{flex:1}
+.nav-item{display:flex;flex-direction:column;align-items:center;font-size:0.75rem;color:var(--muted);gap:4px;cursor:pointer;position:relative;padding:4px 8px}
+.nav-item.active{color:inherit;font-weight:700}
+.badge{position:absolute;top:0;right:4px;background:var(--danger);color:#fff;font-size:0.65rem;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold}
+.btn{border:none;border-radius:8px;padding:8px 12px;font-weight:600;font-size:0.9rem;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:0.2s}
+.btn:active{transform:scale(0.96)}
+.btn-block{width:100%} .btn-sm{padding:4px 10px;font-size:0.8rem}
+.btn-outline{background:transparent;border:1px solid currentColor}
+.input, .select, .textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #CBD5E1;background:#fff;font-size:0.9rem;margin-bottom:8px;outline:none}
+.dark .input, .dark .select{background:#1E293B;border-color:#475569;color:#fff}
+.chip{font-size:0.75rem;padding:4px 10px;border-radius:99px;background:#E2E8F0;color:#334155;display:inline-flex;align-items:center;gap:4px;cursor:pointer}
+.dark .chip{background:#475569;color:#E2E8F0}
+
+/* Admin Specifics */
+.admin-tabs{display:flex;gap:8px;margin-bottom:12px;border-bottom:1px solid #eee;padding-bottom:8px}
+.admin-tab{padding:6px 12px;border-radius:8px;font-size:0.85rem;cursor:pointer;opacity:0.6;font-weight:600}
+.admin-tab.active{opacity:1;background:#E2E8F0;color:#000}
+.dark .admin-tab.active{background:#475569;color:#fff}
+
+/* --- UPDATED TIMELINE ICONS --- */
+.timeline{display:flex;align-items:center;justify-content:space-between;margin-top:12px;position:relative;padding: 0 5px;}
+.timeline::before{content:'';position:absolute;top:50%;left:0;right:0;height:3px;background:#E2E8F0;z-index:0;border-radius: 99px;}
+.tl-step{
+    width:32px;height:32px;border-radius:50%;background:#fff;border:2px solid #E2E8F0;
+    z-index:1;display:flex;align-items:center;justify-content:center;
+    font-size:0.9rem;color:#94A3B8;transition:all .3s ease;
+}
+.tl-step.done{background:var(--success);border-color:var(--success);color:#fff;transform: scale(1.1);}
+.dark .timeline::before{background:#475569} 
+.dark .tl-step{background:#1E293B;border-color:#475569} 
+.dark .tl-step.done{background:var(--success);border-color:var(--success);color:#fff}
+
+/* Modals & Overlays */
+.modal-overlay{
+    position:absolute;inset:0;background:var(--modal-overlay);z-index:3000;
+    display:none;align-items:center;justify-content:center;padding:20px;
+    animation:fadeModal .2s ease;
+}
+.modal-overlay.open{display:flex}
+@keyframes fadeModal{from{opacity:0}to{opacity:1}}
+.modal-content{
+    background:#fff;width:100%;max-width:340px;border-radius:20px;padding:20px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.2);max-height:90%;overflow-y:auto;
+}
+.dark .modal-content{background:#1E293B;color:#fff}
+
+/* Documentation Overlay */
+#docs-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 5000; overflow-y: auto; padding: 20px; display: none; }
+#docs-overlay.open { display: block; }
+.docs-container { max-width: 900px; margin: 0 auto; padding-bottom: 50px; }
+.docs-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #ccc; }
+.docs-section { margin-bottom: 40px; padding: 20px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; background: rgba(0,0,0,0.02); }
+.dark .docs-section { border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.02); }
+.docs-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 15px; color: var(--l2); }
+.docs-subtitle { font-size: 1.1rem; font-weight: 700; margin: 15px 0 8px; color: var(--text); }
+.docs-text { line-height: 1.7; color: var(--text); margin-bottom: 10px; font-size: 0.95rem; }
+.docs-list { list-style: disc inside; margin: 10px 0; padding-right: 20px; }
+.docs-list li { margin-bottom: 6px; color: var(--muted); }
+.docs-code { font-family: monospace; background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 4px; display: inline-block; color: var(--danger); direction: ltr; }
+.dark .docs-code { background: rgba(255,255,255,0.1); color: var(--accent); }
+
+/* Helpers */
+.flex-between{display:flex;justify-content:space-between;align-items:center}
+.flex-center{display:flex;justify-content:center;align-items:center}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.text-l1{color:var(--l1)} .bg-l1{background:var(--l1)}
+.text-l2{color:var(--l2)} .bg-l2{background:var(--l2)}
+.text-l3{color:var(--l3)} .bg-l3{background:var(--l3)}
+.text-success{color:var(--success)} .text-danger{color:var(--danger)}
+.mb-1{margin-bottom:4px} .mb-2{margin-bottom:8px} .mb-4{margin-bottom:16px}
+.bold{font-weight:700} .small{font-size:0.8rem} .muted{color:var(--muted)}
+</style>
+</head>
+<body>
+
+<!-- Exit Presentation Button -->
+<button id="exit-pres-btn" onclick="togglePresentation()">❌ خروج من العرض</button>
+
+<!-- Banner -->
+<div id="banner"><i class="fas fa-info-circle"></i> <span id="banner-msg">رسالة النظام</span></div>
+
+<!-- Success Animation Overlay -->
+<div id="success-anim-container">
+    <lottie-player src="https://assets2.lottiefiles.com/packages/lf20_u4yrau.json" background="transparent" speed="1" style="width: 300px; height: 300px;" loop="false" autoplay></lottie-player>
+    <div id="success-text">تم الطلب بنجاح!</div>
+</div>
+
+<!-- Topbar -->
+<header class="topbar">
+    <div style="display:flex;gap:8px">
+        <button class="toggle-btn" onclick="toggleTheme()" title="الوضع الليلي">🌓</button>
+        <button class="toggle-btn" onclick="toggleSound()" title="الصوت">🔔</button>
+        <button class="toggle-btn" onclick="toggleDocs()" title="التوثيق" style="color:var(--l2);border-color:var(--l2)">📘</button>
+        <button class="toggle-btn" onclick="togglePresentation()" title="وضع العرض" style="color:var(--accent);border-color:var(--accent)">🎬</button>
+        <button class="toggle-btn" onclick="runDemoMode()" title="تشغيل الديمو" style="color:var(--success);border-color:var(--success)">▶️</button>
+    </div>
+    <div class="level-tabs">
+        <button class="lvl-btn active" data-lvl="1" onclick="switchLevel(1)">مستوى 1</button>
+        <button class="lvl-btn" data-lvl="2" onclick="switchLevel(2)">مستوى 2</button>
+        <button class="lvl-btn" data-lvl="3" onclick="switchLevel(3)">مستوى 3</button>
+    </div>
+</header>
+
+<!-- Documentation -->
+<div id="docs-overlay">
+    <div class="docs-container">
+        <div class="docs-header">
+            <h1>📘 توثيق مشروع الحلويات</h1>
+            <button class="toggle-btn" onclick="toggleDocs()">&times;</button>
+        </div>
+        <div class="docs-section">
+            <h2 class="docs-title">1️⃣ وصف عام للمشروع</h2>
+            <p class="docs-text">واجهة عرض لمحل حلويات (Sweet Shop Demo) تحاكي تطبيق العميل ولوحة الإدارة.</p>
+        </div>
+        <!-- (Rest of docs content similar to before) -->
+    </div>
+</div>
+
+<!-- Main Container -->
+<div class="container">
+
+    <!-- ==================== LEVEL 1 ==================== -->
+    <div id="level-1" class="level-container active">
+        <div class="workspace">
+            <div class="client-side">
+                <div class="frame mobile">
+                    <div id="offline-1" class="offline-overlay">
+                        <i class="fas fa-store-slash closed-icon"></i>
+                        <h3>المتجر مغلق الآن</h3>
+                        <p class="muted">نستقبل طلباتكم في وقت لاحق</p>
+                    </div>
+                    <div class="app-header bg-l1">
+                        <span>حلويات السعادة</span>
+                        <span id="store-badge-1" class="chip" style="background:#fff;color:var(--l1);font-weight:700">مفتوح</span>
+                    </div>
+                    <div class="app-body" id="body-1"></div>
+                    <div class="app-nav">
+                        <div class="nav-item active" onclick="nav(1, 'menu')"><i class="fas fa-utensils"></i>القائمة</div>
+                        <div class="nav-item" onclick="nav(1, 'cart')"><i class="fas fa-shopping-basket"></i>السلة <span id="badge-cart-1" class="badge hidden">0</span></div>
+                    </div>
+                    <!-- Product Modal -->
+                    <div id="modal-product-1" class="modal-overlay">
+                        <div class="modal-content">
+                            <img id="mp-img-1" src="" style="width:100%;height:150px;object-fit:cover;border-radius:12px;margin-bottom:10px;background:#eee">
+                            <h3 id="mp-name-1" class="mb-2"></h3>
+                            <select id="mp-weight-1" class="select" onchange="updateModalPrice(1)">
+                                <option value="0.25">ربع كيلو</option>
+                                <option value="0.5">نصف كيلو</option>
+                                <option value="1">كيلو</option>
+                            </select>
+                            <div class="flex-between mb-4"><span class="bold">السعر:</span><strong id="mp-price-1" class="text-l1">0 ج.م</strong></div>
+                            <button class="btn btn-block bg-l1" style="color:#fff" onclick="addToCartFromModal(1)">إضافة للسلة</button>
+                            <button class="btn btn-block btn-outline mt-2" onclick="closeModal(1, 'product')">إغلاق</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="admin-side">
+                <div class="frame tablet">
+                    <div class="app-header bg-l1">
+                        <span>KDS (المطبخ) - مستوى 1</span>
+                        <button id="store-toggle-1" class="btn btn-sm btn-outline" style="color:#fff;border-color:#fff" onclick="toggleStore(1)">إغلاق المحل</button>
+                    </div>
+                    <div class="app-body" style="flex-direction:row;gap:20px;background:#fff">
+                        <div style="flex:2;overflow-y:auto;padding-right:10px">
+                            <h4 class="mb-4 text-l1">الطلبات الحالية</h4>
+                            <div id="orders-list-1" style="display:flex;flex-direction:column;gap:10px"></div>
+                        </div>
+                        <div style="flex:1;border-right:1px solid #eee;padding-right:16px;overflow-y:auto">
+                            <h4 class="mb-4 text-l1">التحكم بالقائمة</h4>
+                            <div id="menu-list-1" style="display:flex;flex-direction:column;gap:8px"></div>
+                        </div>
+                    </div>
+                    <div id="modal-invoice-1" class="modal-overlay">
+                        <div class="modal-content" style="max-width:400px">
+                            <h3 class="center mb-2">فاتورة طلب</h3>
+                            <div id="invoice-content-1" style="border:1px dashed #ccc;padding:10px;margin-bottom:10px;font-family:monospace;font-size:0.9rem"></div>
+                            <button class="btn btn-block bg-l1" style="color:#fff" onclick="closeModal(1, 'invoice')">طباعة / إغلاق</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== LEVEL 2 ==================== -->
+    <div id="level-2" class="level-container">
+        <div class="workspace">
+            <div class="client-side">
+                <div class="frame mobile">
+                    <div id="offline-2" class="offline-overlay">
+                        <i class="fas fa-store-slash closed-icon"></i>
+                        <h3>المتجر مغلق الآن</h3>
+                        <p class="muted">نستقبل طلباتكم في وقت لاحق</p>
+                    </div>
+                    <div class="app-header bg-l2">
+                        <span id="header-user-2">أهلاً، زائر</span>
+                        <button id="login-btn-2" class="btn btn-sm" style="background:#fff;color:var(--l2)" onclick="openLogin(2)">دخول</button>
+                    </div>
+                    <div class="app-body" id="body-2"></div>
+                    <div class="app-nav">
+                        <div class="nav-item active" onclick="nav(2, 'home')"><i class="fas fa-home"></i>الرئيسية</div>
+                        <div class="nav-item" onclick="nav(2, 'cart')"><i class="fas fa-shopping-basket"></i><span id="badge-cart-2" class="badge hidden">0</span></div>
+                        <div class="nav-item" onclick="nav(2, 'track')"><i class="fas fa-box-open"></i></div>
+                        <div class="nav-item" onclick="nav(2, 'fav')"><i class="fas fa-heart"></i></div>
+                        <div class="nav-item" onclick="nav(2, 'notif')"><i class="fas fa-bell"></i><span id="badge-notif-2" class="badge hidden">0</span></div>
+                    </div>
+                    <!-- Product Modal -->
+                    <div id="modal-product-2" class="modal-overlay">
+                        <div class="modal-content">
+                            <img id="mp-img-2" src="" style="width:100%;height:150px;object-fit:cover;border-radius:12px;margin-bottom:10px;background:#eee">
+                            <h3 id="mp-name-2" class="mb-2"></h3>
+                            <select id="mp-weight-2" class="select" onchange="updateModalPrice(2)">
+                                <option value="0.25">ربع كيلو</option>
+                                <option value="0.5">نصف كيلو</option>
+                                <option value="1">كيلو</option>
+                            </select>
+                            <div class="flex-between mb-4"><span class="bold">السعر:</span><strong id="mp-price-2" class="text-l2">0 ج.م</strong></div>
+                            <button class="btn btn-block bg-l2" style="color:#fff" onclick="addToCartFromModal(2)">إضافة</button>
+                            <button class="btn btn-block btn-outline mt-2" onclick="closeModal(2, 'product')">إغلاق</button>
+                        </div>
+                    </div>
+                    <!-- Login Modal -->
+                    <div id="modal-login-2" class="modal-overlay">
+                        <div class="modal-content">
+                            <h3 class="center mb-4">تسجيل الدخول</h3>
+                            <input id="login-name-2" class="input" placeholder="الاسم">
+                            <input id="login-phone-2" class="input" placeholder="رقم الجوال">
+                            <button class="btn btn-block bg-l2 mb-2" style="color:#fff" onclick="sendOtp(2)">إرسال الرمز</button>
+                            <div id="otp-area-2" class="hidden">
+                                <input id="otp-code-2" class="input" placeholder="الرمز (1234)">
+                                <button class="btn btn-block bg-l2" style="color:#fff" onclick="verifyOtp(2)">تأكيد</button>
+                            </div>
+                            <button class="btn btn-block btn-outline" style="margin-top:8px" onclick="closeModal(2, 'login')">إلغاء</button>
+                        </div>
+                    </div>
+                    <!-- Add Address Modal -->
+                    <div id="modal-address-2" class="modal-overlay">
+                        <div class="modal-content">
+                            <h3 class="center mb-4">إضافة عنوان جديد</h3>
+                            <input id="new-addr-2" class="input" placeholder="مثال: المنزل - المعادي شارع 9">
+                            <button class="btn btn-block bg-l2" style="color:#fff" onclick="saveAddress(2)">حفظ العنوان</button>
+                            <button class="btn btn-block btn-outline mt-2" onclick="closeModal(2, 'address')">إلغاء</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="admin-side">
+                <div class="frame tablet">
+                    <div class="app-header bg-l2">
+                        <span>غرفة العمليات (Ops Room)</span>
+                        <button id="store-toggle-2" class="btn btn-sm btn-outline" style="color:#fff;border-color:#fff" onclick="toggleStore(2)">إغلاق المحل</button>
+                    </div>
+                    <div class="app-body" style="flex-direction:row;gap:20px;background:#fff">
+                        <div style="flex:1.8;overflow-y:auto;padding-right:10px">
+                            <h4 class="mb-4 text-l2">سجل الطلبات</h4>
+                            <div id="orders-list-2" style="display:flex;flex-direction:column;gap:10px"></div>
+                        </div>
+                        <div style="flex:1.2;border-right:1px solid #eee;padding-right:16px;display:flex;flex-direction:column">
+                            <div class="admin-tabs">
+                                <div class="admin-tab active" onclick="setAdminTab(2, 'menu', this)">القائمة</div>
+                                <div class="admin-tab" onclick="setAdminTab(2, 'customers', this)">العملاء (CRM)</div>
+                            </div>
+                            <div id="admin-panel-2" style="flex:1;overflow-y:auto"></div>
+                        </div>
+                    </div>
+                    <div id="modal-invoice-2" class="modal-overlay">
+                        <div class="modal-content" style="max-width:400px">
+                            <h3 class="center mb-2">فاتورة طلب</h3>
+                            <div id="invoice-content-2" style="border:1px dashed #ccc;padding:10px;margin-bottom:10px;font-family:monospace;font-size:0.9rem"></div>
+                            <button class="btn btn-block bg-l2" style="color:#fff" onclick="closeModal(2, 'invoice')">طباعة</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== LEVEL 3 ==================== -->
+    <div id="level-3" class="level-container">
+        <div class="workspace">
+            <div class="client-side">
+                <div class="frame mobile">
+                    <div id="offline-3" class="offline-overlay">
+                        <i class="fas fa-store-slash closed-icon"></i>
+                        <h3>المتجر مغلق الآن</h3>
+                        <p class="muted">نستقبل طلباتكم في وقت لاحق</p>
+                    </div>
+                    <div class="app-header bg-l3">
+                        <span id="header-user-3">أهلاً، زائر</span>
+                        <div class="flex-center gap-1">
+                            <span id="points-badge-3" class="chip hidden" onclick="nav(3, 'wallet')" style="background:rgba(255,255,255,0.2);color:#fff">0 ⭐</span>
+                            <button id="login-btn-3" class="btn btn-sm" style="background:#fff;color:var(--l3)" onclick="openLogin(3)">دخول</button>
+                        </div>
+                    </div>
+                    <div class="app-body" id="body-3"></div>
+                    <div class="app-nav">
+                        <div class="nav-item active" onclick="nav(3, 'home')"><i class="fas fa-store"></i>الرئيسية</div>
+                        <div class="nav-item" onclick="nav(3, 'cart')"><i class="fas fa-shopping-basket"></i><span id="badge-cart-3" class="badge hidden">0</span></div>
+                        <div class="nav-item" onclick="nav(3, 'track')"><i class="fas fa-receipt"></i></div>
+                        <div class="nav-item" onclick="nav(3, 'fav')"><i class="fas fa-heart"></i></div>
+                        <div class="nav-item" onclick="nav(3, 'notif')"><i class="fas fa-bell"></i><span id="badge-notif-3" class="badge hidden">0</span></div>
+                    </div>
+                    <!-- Product Modal -->
+                    <div id="modal-product-3" class="modal-overlay">
+                        <div class="modal-content">
+                            <img id="mp-img-3" src="" style="width:100%;height:150px;object-fit:cover;border-radius:12px;margin-bottom:10px;background:#eee">
+                            <h3 id="mp-name-3" class="mb-2"></h3>
+                            <select id="mp-weight-3" class="select" onchange="updateModalPrice(3)">
+                                <option value="0.25">ربع كيلو</option>
+                                <option value="0.5">نصف كيلو</option>
+                                <option value="1">كيلو</option>
+                            </select>
+                            <div class="flex-between mb-4"><span class="bold">السعر:</span><strong id="mp-price-3" class="text-l3">0 ج.م</strong></div>
+                            <button class="btn btn-block bg-l3" style="color:#fff" onclick="addToCartFromModal(3)">إضافة</button>
+                            <button class="btn btn-block btn-outline mt-2" onclick="closeModal(3, 'product')">إغلاق</button>
+                        </div>
+                    </div>
+                    <!-- Login Modal -->
+                    <div id="modal-login-3" class="modal-overlay">
+                        <div class="modal-content">
+                            <h3 class="center mb-4">تسجيل الدخول</h3>
+                            <input id="login-name-3" class="input" placeholder="الاسم">
+                            <input id="login-phone-3" class="input" placeholder="رقم الجوال">
+                            <button class="btn btn-block bg-l3 mb-2" style="color:#fff" onclick="sendOtp(3)">إرسال الرمز</button>
+                            <div id="otp-area-3" class="hidden">
+                                <input id="otp-code-3" class="input" placeholder="الرمز (1234)">
+                                <button class="btn btn-block bg-l3" style="color:#fff" onclick="verifyOtp(3)">تأكيد</button>
+                            </div>
+                            <button class="btn btn-block btn-outline" style="margin-top:8px" onclick="closeModal(3, 'login')">إلغاء</button>
+                        </div>
+                    </div>
+                    <!-- Add Address Modal -->
+                    <div id="modal-address-3" class="modal-overlay">
+                        <div class="modal-content">
+                            <h3 class="center mb-4">إضافة عنوان جديد</h3>
+                            <input id="new-addr-3" class="input" placeholder="مثال: المنزل - المعادي شارع 9">
+                            <button class="btn btn-block bg-l3" style="color:#fff" onclick="saveAddress(3)">حفظ العنوان</button>
+                            <button class="btn btn-block btn-outline mt-2" onclick="closeModal(3, 'address')">إلغاء</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="admin-side">
+                <div class="frame tablet">
+                    <div class="app-header bg-l3">
+                        <span>Dashboard & Analytics</span>
+                        <button id="store-toggle-3" class="btn btn-sm btn-outline" style="color:#fff;border-color:#fff" onclick="toggleStore(3)">إغلاق المحل</button>
+                    </div>
+                    <div class="app-body" style="flex-direction:row;gap:20px;background:#fff">
+                        <div style="flex:1.5;overflow-y:auto;padding-right:10px">
+                            <h4 class="mb-4 text-l3">الطلبات الحية</h4>
+                            <div id="orders-list-3" style="display:flex;flex-direction:column;gap:10px"></div>
+                        </div>
+                        <div style="flex:1.5;border-right:1px solid #eee;padding-right:16px;display:flex;flex-direction:column">
+                            <div class="admin-tabs">
+                                <div class="admin-tab active" onclick="setAdminTab(3, 'analytics', this)">التحليلات 📊</div>
+                                <div class="admin-tab" onclick="setAdminTab(3, 'customers', this)">العملاء</div>
+                                <div class="admin-tab" onclick="setAdminTab(3, 'menu', this)">القائمة</div>
+                            </div>
+                            <div id="admin-panel-3" style="flex:1;overflow-y:auto"></div>
+                        </div>
+                    </div>
+                    <div id="modal-invoice-3" class="modal-overlay">
+                        <div class="modal-content" style="max-width:400px">
+                            <h3 class="center mb-2">فاتورة طلب</h3>
+                            <div id="invoice-content-3" style="border:1px dashed #ccc;padding:10px;margin-bottom:10px;font-family:monospace;font-size:0.9rem"></div>
+                            <button class="btn btn-block bg-l3" style="color:#fff" onclick="closeModal(3, 'invoice')">طباعة</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+/* --- 1. BASE DATA (Fixed Images) --- */
+const baseProducts = [
+    {id:1, name:'طبق شرقي مشكل', price:120, img:'https://placehold.co/400x300/F8FAFC/78350F?text=Mix+Sweets'},
+    {id:2, name:'كنافة نابلسية', price:90, img:'https://placehold.co/400x300/F8FAFC/F59E0B?text=Kunafa'},
+    {id:3, name:'تورتة شوكولاتة', price:220, img:'https://placehold.co/400x300/F8FAFC/334155?text=Choco+Cake'},
+    {id:4, name:'بسبوسة بالقشطة', price:80, img:'https://placehold.co/400x300/F8FAFC/F59E0B?text=Basbousa'},
+    {id:5, name:'أرز باللبن', price:35, img:'https://placehold.co/400x300/F8FAFC/0F172A?text=Rice+Milk'},
+    {id:6, name:'زلابية', price:40, img:'https://placehold.co/400x300/F8FAFC/F59E0B?text=Zalabia'},
+    {id:7, name:'أم علي', price:50, img:'https://placehold.co/400x300/F8FAFC/78350F?text=Om+Ali'},
+    {id:8, name:'بلح الشام', price:60, img:'https://placehold.co/400x300/F8FAFC/F59E0B?text=Balah+Elsham'},
+    {id:9, name:'تشيز كيك فراولة', price:75, img:'https://placehold.co/400x300/F8FAFC/EF4444?text=Cheesecake'},
+    {id:10, name:'جاتوه سواريه', price:150, img:'https://placehold.co/400x300/F8FAFC/334155?text=Gateau'},
+    {id:11, name:'كب كيك فانيليا', price:30, img:'https://placehold.co/400x300/F8FAFC/F59E0B?text=Cupcake'},
+    {id:12, name:'مولتن كيك', price:65, img:'https://placehold.co/400x300/F8FAFC/334155?text=Molten+Cake'},
+    {id:13, name:'وافل نوتيلا', price:55, img:'https://placehold.co/400x300/F8FAFC/334155?text=Waffle'},
+    {id:14, name:'بان كيك عسل', price:45, img:'https://placehold.co/400x300/F8FAFC/F59E0B?text=Pancake'},
+    {id:15, name:'آيس كريم فستق', price:40, img:'https://placehold.co/400x300/F8FAFC/15803D?text=Ice+Cream'},
+    {id:16, name:'بقلاوة', price:110, img:'https://placehold.co/400x300/F8FAFC/F59E0B?text=Baklava'},
+    {id:17, name:'هريسة سادة', price:70, img:'https://placehold.co/400x300/F8FAFC/F59E0B?text=Harissa'},
+    {id:18, name:'كوكيز شوكولاتة', price:25, img:'https://placehold.co/400x300/F8FAFC/334155?text=Cookies'},
+    {id:19, name:'عصير مانجو', price:35, img:'https://placehold.co/400x300/F8FAFC/F59E0B?text=Mango'},
+    {id:20, name:'قهوة تركي', price:20, img:'https://placehold.co/400x300/F8FAFC/78350F?text=Coffee'}
+];
+
+const l3Offers = [
+    {id:1, title:'خصم 10 ج.م', pts:20, type:'discount', val:10}, 
+    {id:2, title:'خصم 20 ج.م', pts:40, type:'discount', val:20}, 
+    {id:3, title:'توصيل مجاني', pts:50, type:'discount', val:30},
+    {id:4, title:'قهوة مجاناً', pts:30, type:'item', val:20}, 
+    {id:5, title:'كب كيك هدية', pts:60, type:'item', val:11}, 
+    {id:6, title:'خصم 10%', pts:100, type:'discount', val:50}, 
+    {id:7, title:'طبق أم علي', pts:120, type:'item', val:7}, 
+    {id:8, title:'نصف كيلو مشكل', pts:300, type:'item', val:1}, 
+    {id:9, title:'تورتة عيد ميلاد', pts:800, type:'item', val:3},
+    {id:10, title:'بوكس العائلة', pts:500, type:'item', val:16}
+];
+
+const dummyCustomers = [
+    {name: 'أحمد محمد', phone: '01012345678', orders: 12, total: 3500}, {name: 'سارة علي', phone: '01198765432', orders: 5, total: 850},
+    {name: 'محمود حسن', phone: '01234567890', orders: 23, total: 6200}, {name: 'نور الدين', phone: '01555555555', orders: 2, total: 150}
+];
+
+const getFreshMenu = () => JSON.parse(JSON.stringify(baseProducts.map(p=>({...p, active:true}))));
+
+const db = {
+    1: { menu: getFreshMenu(), cart: [], orders: [], storeOpen: true },
+    2: { menu: getFreshMenu(), cart: [], orders: [], user: null, addresses: ['المنزل (المعادي)', 'العمل (التجمع)'], fav: [], notif: [], storeOpen: true, currentView: 'home', adminView: 'menu', customers: JSON.parse(JSON.stringify(dummyCustomers)) },
+    3: { menu: getFreshMenu(), cart: [], orders: [], user: null, addresses: ['المنزل (المعادي)'], fav: [], notif: [], storeOpen: true, points: 50, sales: 0, promo: null, currentView: 'home', adminView: 'analytics', customers: JSON.parse(JSON.stringify(dummyCustomers)), activeDiscount: null }
+};
+
+let soundEnabled = true;
+let activeModalData = null;
+let activeLevel = 1;
+
+/* --- 2. INIT --- */
+function init() {
+    renderLevel(1);
+    if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches){
+        document.body.classList.add('dark');
+    }
+}
+
+/* --- 3. GLOBAL ACTIONS --- */
+function toggleTheme() { document.body.classList.toggle('dark'); }
+function toggleSound() { soundEnabled = !soundEnabled; showBanner(soundEnabled?'🔔 الصوت مفعل':'🔕 الوضع الصامت'); }
+function toggleDocs() { document.getElementById('docs-overlay').classList.toggle('open'); }
+function togglePresentation() { 
+    document.body.classList.toggle('presentation'); 
+    if(document.body.classList.contains('presentation')) showBanner('تم تفعيل وضع العرض 🎬');
+}
+function showBanner(msg) {
+    const b = document.getElementById('banner');
+    document.getElementById('banner-msg').textContent = msg;
+    b.classList.add('show');
+    setTimeout(()=>b.classList.remove('show'), 3000);
+}
+function playOrderSound() { if(soundEnabled) new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_f60b1b4bf2.mp3?filename=correct-2-46134.mp3").play().catch(e=>{}); }
+
+/* --- 4. NAVIGATION & LEVELS --- */
+function switchLevel(lvl) {
+    activeLevel = lvl;
+    document.querySelectorAll('.level-container').forEach(el => el.classList.remove('active'));
+    document.getElementById(`level-${lvl}`).classList.add('active');
+    document.querySelectorAll('.lvl-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`.lvl-btn[data-lvl="${lvl}"]`).classList.add('active');
+    renderLevel(lvl);
+    showBanner(`تم الانتقال إلى المستوى ${lvl}`);
+}
+function nav(lvl, view) {
+    if(lvl === 1) {
+        if(view === 'menu') renderClientL1(db[1]);
+        if(view === 'cart') renderCartL1();
+        document.querySelectorAll('#level-1 .nav-item').forEach(el => el.classList.remove('active'));
+        if(view === 'menu') document.querySelectorAll('#level-1 .nav-item')[0].classList.add('active');
+        if(view === 'cart') document.querySelectorAll('#level-1 .nav-item')[1].classList.add('active');
+    } else {
+        db[lvl].currentView = view;
+        renderClientApp(lvl);
+        const icons = document.querySelectorAll(`#level-${lvl} .nav-item`);
+        icons.forEach(el => el.classList.remove('active'));
+        const map = {'home':0, 'cart':1, 'track':2, 'fav':3, 'notif':4};
+        if(map[view] !== undefined) icons[map[view]].classList.add('active');
+    }
+}
+function setAdminTab(lvl, tab, btn) {
+    db[lvl].adminView = tab;
+    const parent = btn.parentElement;
+    Array.from(parent.children).forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    renderAdminPanel(lvl);
+}
+
+/* --- 5. RENDER LOGIC --- */
+function renderLevel(lvl) {
+    if(lvl === 1) { renderClientL1(db[1]); renderAdminL1(); }
+    else { renderClientApp(lvl); renderAdminApp(lvl); }
+    updateCounts(lvl);
+    document.getElementById(`offline-${lvl}`).classList.toggle('active', !db[lvl].storeOpen);
+}
+
+// Level 1 Specific
+function renderClientL1(d) {
+    document.getElementById('body-1').innerHTML = d.menu.filter(p=>p.active).map(p => `
+        <div class="card product-card mb-2">
+            <img src="${p.img}" class="p-img" onclick="openProductModal(1, ${p.id})">
+            <div class="p-info">
+                <div class="p-title">${p.name}</div>
+                <div class="p-desc">سعر الكيلو: ${p.price} ج.م</div>
+                <div class="flex-between mt-2">
+                    <select id="w-1-${p.id}" class="select" style="width:auto;padding:4px;margin:0;font-size:0.8rem"><option value="0.25">¼ كجم</option><option value="0.5">½ كجم</option><option value="1">1 كجم</option></select>
+                    <button class="btn btn-sm bg-l1" style="color:#fff" onclick="quickAdd(1, ${p.id})">إضافة</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+function renderCartL1() {
+    const d = db[1];
+    const total = d.cart.reduce((s,i)=>s+i.finalPrice,0);
+    const html = d.cart.length===0 ? '<p class="muted center">السلة فارغة</p>' : d.cart.map((item,i) => `
+        <div class="card mb-2 flex-between">
+            <div><div class="bold">${item.name}</div><div class="small muted">${item.weightLabel}</div></div>
+            <div><div class="bold text-l1">${item.finalPrice} ج.م</div><button class="btn btn-sm text-danger" onclick="removeFromCart(1, ${i})"><i class="fas fa-trash"></i></button></div>
+        </div>
+    `).join('');
+    const form = d.cart.length>0 ? `
+        <div class="card mt-4"><h4 class="mb-2">بيانات العميل</h4>
+        <input id="guest-name-1" class="input" placeholder="الاسم (مطلوب)">
+        <input id="guest-phone-1" class="input" placeholder="الهاتف">
+        <input id="guest-addr-1" class="input" placeholder="العنوان">
+        <textarea id="note-1" class="textarea" placeholder="ملاحظات"></textarea>
+        <div class="flex-between mb-2 mt-2"><span class="bold">الإجمالي:</span><strong class="text-l1">${total} ج.م</strong></div>
+        <button class="btn btn-block bg-l1" style="color:#fff" onclick="submitOrder(1)">إتمام الطلب</button></div>` : '';
+    document.getElementById('body-1').innerHTML = `<h3 class="mb-4">السلة (${d.cart.length})</h3>` + html + form;
+}
+function renderAdminL1() {
+    const d = db[1];
+    document.getElementById('orders-list-1').innerHTML = d.orders.map(o => `
+        <div class="card mb-2" style="border-right:4px solid var(--l1)">
+            <div class="flex-between mb-1"><span class="bold">#${o.id}</span><span class="small muted">${o.time}</span></div>
+            <div class="small mb-1">${o.client} (${o.items.length} صنف)</div>
+            <div class="timeline">
+                <div class="tl-step done"><i class="fas fa-file-invoice"></i></div>
+                <div class="tl-step ${['prep','deliv','done'].includes(o.status)?'done':''}"><i class="fas fa-fire-burner"></i></div>
+                <div class="tl-step ${['deliv','done'].includes(o.status)?'done':''}"><i class="fas fa-motorcycle"></i></div>
+                <div class="tl-step ${o.status==='done'?'done':''}"><i class="fas fa-check"></i></div>
+            </div>
+            <div class="flex-between mt-2"><span class="small bold">${getStatusText(o.status)}</span><div class="flex-center gap-1"><button class="btn btn-sm btn-outline" onclick="showInvoice(1, ${o.id})">فاتورة</button><button class="btn btn-sm bg-l1" style="color:#fff" onclick="nextStatus(1, ${o.id})">التالي</button></div></div>
+        </div>`).join('') || '<p class="muted center">لا توجد طلبات</p>';
+    document.getElementById('menu-list-1').innerHTML = d.menu.map(p => `<div class="flex-between card mb-1" style="padding:8px"><span class="small bold">${p.name}</span><input type="checkbox" ${p.active?'checked':''} onchange="toggleProduct(1, ${p.id})"></div>`).join('');
+}
+
+// Level 2 & 3 Generic
+function renderClientApp(lvl) {
+    const d = db[lvl];
+    const body = document.getElementById(`body-${lvl}`);
+    const color = lvl===2?'bg-l2':'bg-l3'; const txtC = lvl===2?'text-l2':'text-l3';
+    
+    // UPDATE HEADER
+    const headerUser = document.getElementById(`header-user-${lvl}`);
+    const loginBtn = document.getElementById(`login-btn-${lvl}`);
+    if (d.user) {
+        headerUser.textContent = `أهلاً، ${d.user.name}`;
+        loginBtn.textContent = 'خروج';
+        loginBtn.onclick = () => logout(lvl);
+        loginBtn.classList.remove('hidden');
+    } else {
+        headerUser.textContent = 'أهلاً، زائر';
+        loginBtn.textContent = 'دخول';
+        loginBtn.onclick = () => openLogin(lvl);
+    }
+
+    if(d.currentView === 'home') {
+        let h = (lvl===3&&d.promo) ? `<div class="card mb-4" style="background:#DCFCE7;border:1px solid var(--success);color:var(--success);text-align:center;font-weight:700">🎉 ${d.promo}</div>` : '';
+        if(d.user) h += `<div class="flex-between mb-4"><span class="chip" onclick="nav(${lvl}, 'profile')">👤 حسابي</span><span class="chip" onclick="nav(${lvl}, 'address')">🏠 عناويني</span>${lvl===3 ? `<span class="chip" onclick="nav(${lvl}, 'wallet')">🎁 المكافآت</span>` : ''}</div>`;
+        h += d.menu.filter(p=>p.active).map(p => `
+            <div class="card product-card mb-2"><img src="${p.img}" class="p-img" onclick="openProductModal(${lvl}, ${p.id})">
+            <div class="p-info"><div class="flex-between"><div class="p-title">${p.name}</div><i class="fas fa-heart ${d.fav.includes(p.id)?'text-danger':'muted'}" onclick="toggleFav(${lvl}, ${p.id})"></i></div>
+            <div class="p-desc">سعر الكيلو: ${p.price} ج.م</div>
+            <div class="flex-between mt-2"><select id="w-${lvl}-${p.id}" class="select" style="width:auto;padding:4px;margin:0;font-size:0.8rem"><option value="0.25">¼ كجم</option><option value="0.5">½ كجم</option><option value="1">1 كجم</option></select><button class="btn btn-sm ${color}" style="color:#fff" onclick="quickAdd(${lvl}, ${p.id})">إضافة</button></div></div></div>`).join('');
+        body.innerHTML = h;
+    } else if(d.currentView === 'cart') {
+        let total = d.cart.reduce((s,i)=>s+i.finalPrice,0);
+        // Apply Level 3 Discount
+        let discountHtml = '';
+        if (lvl === 3 && d.activeDiscount) {
+            let discountVal = 0;
+            if (d.activeDiscount.type === 'percent') {
+                discountVal = Math.round(total * (d.activeDiscount.val / 100));
+                discountHtml = `<div class="flex-between text-success small mb-1"><span>خصم (${d.activeDiscount.val}%)</span><span>-${discountVal} ج.م</span></div>`;
+            } else {
+                discountVal = d.activeDiscount.val;
+                discountHtml = `<div class="flex-between text-success small mb-1"><span>خصم خاص</span><span>-${discountVal} ج.م</span></div>`;
+            }
+            total = Math.max(0, total - discountVal);
+        }
+
+        if(d.cart.length===0) return body.innerHTML='<div class="center" style="height:100%"><p class="muted">السلة فارغة</p></div>';
+        
+        const items = d.cart.map((item,i) => {
+            const isReward = item.isReward;
+            const priceClass = item.finalPrice < 0 ? 'text-success' : txtC;
+            return `<div class="card mb-2 flex-between" style="${isReward?'border-right:4px solid var(--success)':''}"><div><div class="bold">${item.name}</div><div class="small muted">${item.weightLabel}</div></div><div><div class="bold ${priceClass}">${item.finalPrice} ج.م</div><button class="btn btn-sm text-danger" onclick="removeFromCart(${lvl}, ${i})"><i class="fas fa-trash"></i></button></div></div>`;
+        }).join('');
+        
+        const checkout = !d.user ? `<div class="card mt-4 center"><p class="text-danger mb-2">يرجى تسجيل الدخول</p><button class="btn btn-sm btn-outline" onclick="openLogin(${lvl})">دخول</button></div>` : `
+            <div class="card mt-4"><h4 class="mb-2">تفاصيل الطلب</h4><div class="small mb-1">العميل: ${d.user.name}</div>
+            <label class="small bold block mb-1">العنوان:</label>
+            <div style="display:flex;gap:5px"><select id="addr-sel-${lvl}" class="select" style="margin-bottom:0">${d.addresses.map(a=>`<option>${a}</option>`).join('')}</select><button class="btn btn-sm ${color}" style="color:#fff" onclick="openAddressModal(${lvl})">+</button></div>
+            <div class="flex-between mb-2 mt-2"><label class="small bold">🎁 هدية؟</label><input type="checkbox" onchange="toggleElem('gift-input-${lvl}')"></div><input id="gift-input-${lvl}" class="input hidden" placeholder="رسالة الهدية">
+            <div class="flex-between mb-2"><label class="small bold">⏰ جدولة؟</label><input type="checkbox" onchange="toggleElem('sched-input-${lvl}')"></div><input id="sched-input-${lvl}" type="datetime-local" class="input hidden">
+            <textarea id="note-${lvl}" class="textarea mt-2" placeholder="ملاحظات"></textarea>
+            ${lvl===3?`<div class="small text-success mb-2"><i class="fas fa-star"></i> ستكسب ${Math.floor(total/10)} نقطة</div>`:''}
+            ${discountHtml}
+            <div class="flex-between mb-2 mt-2"><span class="bold">الإجمالي:</span><strong class="${txtC}" style="font-size:1.2rem">${total} ج.م</strong></div>
+            <button class="btn btn-block ${color}" style="color:#fff" onclick="submitOrder(${lvl})">تأكيد الطلب</button></div>`;
+        body.innerHTML = `<h3 class="mb-4">السلة (${d.cart.length})</h3>` + items + checkout;
+    } else if(d.currentView === 'track') {
+        body.innerHTML = `<h3 class="mb-4">طلباتي</h3>` + (d.orders.map(o => `
+        <div class="card mb-2">
+            <div class="flex-between mb-2"><span class="bold">#${o.id}</span><span class="small muted">${o.time}</span></div>
+            <div class="small mb-2">${o.items.map(i=>i.name).join(', ')}<br><strong>${o.total} ج.م</strong></div>
+            <div class="timeline">
+                <div class="tl-step done"><i class="fas fa-file-invoice"></i></div>
+                <div class="tl-step ${['prep','deliv','done'].includes(o.status)?'done':''}"><i class="fas fa-fire-burner"></i></div>
+                <div class="tl-step ${['deliv','done'].includes(o.status)?'done':''}"><i class="fas fa-motorcycle"></i></div>
+                <div class="tl-step ${o.status==='done'?'done':''}"><i class="fas fa-check"></i></div>
+            </div>
+            <div class="center small mt-2 bold ${txtC}">${getStatusText(o.status)}</div>
+        </div>`).join('') || '<p class="muted center">لا توجد طلبات</p>');
+    } else if(d.currentView === 'fav') {
+        // Updated Favorites with Weight Selector
+        body.innerHTML = `<h3 class="mb-4">المفضلة</h3>` + (d.menu.filter(p=>d.fav.includes(p.id)).map(p => `
+            <div class="card product-card mb-2">
+                <img src="${p.img}" class="p-img">
+                <div class="p-info">
+                    <div class="flex-between"><div class="p-title">${p.name}</div><i class="fas fa-heart text-danger" onclick="toggleFav(${lvl}, ${p.id})"></i></div>
+                    <div class="p-desc">${p.price} ج.م</div>
+                    <div class="flex-between mt-2">
+                        <select id="w-fav-${lvl}-${p.id}" class="select" style="width:auto;padding:4px;margin:0;font-size:0.8rem">
+                            <option value="0.25">¼ كجم</option>
+                            <option value="0.5">½ كجم</option>
+                            <option value="1">1 كجم</option>
+                        </select>
+                        <button class="btn btn-sm ${color}" style="color:#fff" onclick="quickAddFav(${lvl}, ${p.id})">إضافة</button>
+                    </div>
+                </div>
+            </div>`).join('') || '<p class="muted center">لا توجد مفضلة</p>');
+    } else if(d.currentView === 'notif') {
+        body.innerHTML = `<h3 class="mb-4">الإشعارات</h3>` + (d.notif.map((n, i)=>`
+            <div class="card mb-2" style="border-right:4px solid var(--danger)">
+                <div class="bold">${n.title}</div>
+                <div class="small">${n.body}</div>
+                ${n.promo ? `<button class="btn btn-sm bg-l3 mt-2" style="color:#fff" onclick="applyDiscount(${lvl}, ${i})">تفعيل العرض</button>` : ''}
+                <div class="small muted mt-1">${n.time}</div>
+            </div>`).join('') || '<p class="muted center">لا توجد إشعارات</p>');
+    } else if(d.currentView === 'profile' && d.user) {
+        body.innerHTML = `<h3 class="mb-4">حسابي</h3><div class="card mb-4"><div class="flex-between mb-2"><span>الاسم</span><strong>${d.user.name}</strong></div><div class="flex-between"><span>الهاتف</span><strong>${d.user.phone}</strong></div><div class="flex-between"><span>الطلبات</span><strong>${d.orders.length}</strong></div></div><button class="btn btn-block btn-outline" onclick="logout(${lvl})">تسجيل خروج</button>`;
+    } else if(d.currentView === 'address' && d.user) {
+        body.innerHTML = `<div class="flex-between mb-4"><h3>عناويني</h3> <button class="btn btn-sm ${color}" style="color:#fff" onclick="openAddressModal(${lvl})">+ جديد</button></div>${d.addresses.map(a=>`<div class="card mb-2 small">${a}</div>`).join('')}`;
+    } else if(d.currentView === 'wallet' && d.user && lvl===3) {
+        body.innerHTML = `<h3 class="mb-4">المكافآت</h3><div class="card bg-l3 mb-4 center" style="color:#fff"><h1 style="font-size:3rem">${d.points}</h1><span>نقطة ولاء ⭐</span></div><h4 class="mb-2">العروض</h4>${l3Offers.map(o=>`<div class="card flex-between mb-2"><div><div class="bold">${o.title}</div><div class="small muted">${o.pts} نقطة</div></div><button class="btn btn-sm btn-outline" onclick="redeemPoints(${o.id})">استبدال</button></div>`).join('')}`;
+    }
+}
+function renderAdminApp(lvl) {
+    const d = db[lvl];
+    const color = lvl===2?'text-l2':'text-l3'; const bg = lvl===2?'bg-l2':'bg-l3';
+    document.getElementById(`orders-list-${lvl}`).innerHTML = d.orders.map(o => `
+    <div class="card mb-2" style="border-right:4px solid var(--l${lvl})">
+        <div class="flex-between mb-1"><span class="bold">#${o.id}</span><span class="small muted">${o.time}</span></div>
+        <div class="small mb-1">${o.client} <br> ${o.items.length} صنف | ${o.total} ج.م</div>
+        <div class="timeline">
+            <div class="tl-step done"><i class="fas fa-file-invoice"></i></div>
+            <div class="tl-step ${['prep','deliv','done'].includes(o.status)?'done':''}"><i class="fas fa-fire-burner"></i></div>
+            <div class="tl-step ${['deliv','done'].includes(o.status)?'done':''}"><i class="fas fa-motorcycle"></i></div>
+            <div class="tl-step ${o.status==='done'?'done':''}"><i class="fas fa-check"></i></div>
+        </div>
+        <div class="flex-between mt-2"><span class="small bold ${color}">${getStatusText(o.status)}</span><div class="flex-center gap-1"><button class="btn btn-sm btn-outline" onclick="showInvoice(${lvl}, ${o.id})">فاتورة</button><button class="btn btn-sm ${bg}" style="color:#fff" onclick="nextStatus(${lvl}, ${o.id})">تحديث</button></div></div>
+    </div>`).join('') || '<p class="muted center">لا توجد طلبات</p>';
+    renderAdminPanel(lvl);
+}
+function renderAdminPanel(lvl) {
+    const d = db[lvl]; const container = document.getElementById(`admin-panel-${lvl}`);
+    if(d.adminView === 'menu') container.innerHTML = d.menu.map(p => `<div class="flex-between card mb-1" style="padding:8px"><span class="small bold">${p.name}</span><input type="checkbox" ${p.active?'checked':''} onchange="toggleProduct(${lvl}, ${p.id})"></div>`).join('');
+    else if(d.adminView === 'customers') container.innerHTML = d.customers.map(c => `<div class="card mb-2 small"><div class="flex-between"><strong>${c.name}</strong> <span>${c.orders} طلب</span></div><div class="flex-between muted"><span>${c.phone}</span> <span>${c.total} ج.م</span></div></div>`).join('');
+    else if(d.adminView === 'analytics' && lvl===3) {
+        container.innerHTML = `
+        <div class="grid-2 mb-2">
+            <div class="card center"><h3 class="text-l3">${d.sales}</h3><span class="small muted">المبيعات</span></div>
+            <div class="card center"><h3 class="text-l3">${d.orders.length}</h3><span class="small muted">الطلبات</span></div>
+        </div>
+        <div class="card mb-2"><h5 class="mb-2">📢 نشر عرض جديد</h5>
+            <input id="promo-title-3" class="input" placeholder="عنوان العرض (مثلاً: خصم الجمعة)">
+            <div class="grid-2">
+                <select id="promo-type-3" class="select"><option value="percent">نسبة مئوية %</option><option value="fixed">مبلغ ثابت (ج.م)</option></select>
+                <input id="promo-val-3" class="input" type="number" placeholder="القيمة (مثلاً 20)">
+            </div>
+            <button class="btn btn-block bg-l3" style="color:#fff" onclick="sendPromo(3)">نشر وإرسال إشعار</button>
+        </div>`;
+    }
+}
+
+/* --- 6. ACTIONS --- */
+function openProductModal(lvl, pid) {
+    const p = db[lvl].menu.find(x => x.id === pid); activeModalData = {lvl, p};
+    document.getElementById(`mp-img-${lvl}`).src = p.img; document.getElementById(`mp-name-${lvl}`).textContent = p.name;
+    document.getElementById(`mp-price-${lvl}`).textContent = (p.price * 0.25) + ' ج.م'; document.getElementById(`mp-weight-${lvl}`).value = 0.25;
+    document.getElementById(`modal-product-${lvl}`).classList.add('open');
+}
+function updateModalPrice(lvl) {
+    if (!activeModalData || !activeModalData.p) return; 
+    const w = parseFloat(document.getElementById(`mp-weight-${lvl}`).value);
+    document.getElementById(`mp-price-${lvl}`).textContent = Math.round(activeModalData.p.price * w) + ' ج.م';
+}
+function addToCartFromModal(lvl) {
+    if (!activeModalData || !activeModalData.p) return; 
+    const w = parseFloat(document.getElementById(`mp-weight-${lvl}`).value);
+    addItemToCart(lvl, activeModalData.p, w); closeModal(lvl, 'product');
+}
+function quickAdd(lvl, pid) {
+    const el = document.getElementById(`w-${lvl}-${pid}`); const w = el ? parseFloat(el.value) : 0.25;
+    addItemToCart(lvl, db[lvl].menu.find(x=>x.id===pid), w);
+}
+// Special wrapper for Fav screen to handle unique ID
+function quickAddFav(lvl, pid) {
+    const el = document.getElementById(`w-fav-${lvl}-${pid}`); const w = el ? parseFloat(el.value) : 0.25;
+    addItemToCart(lvl, db[lvl].menu.find(x=>x.id===pid), w);
+}
+
+function addItemToCart(lvl, p, w) {
+    if(!db[lvl].storeOpen) return showBanner('🛑 المتجر مغلق حالياً');
+    const wLabels = {0.25:'ربع كيلو', 0.5:'نصف كيلو', 1:'كيلو'};
+    db[lvl].cart.push({ ...p, weight: w, weightLabel: wLabels[w], finalPrice: Math.round(p.price * w) });
+    showBanner('✅ تمت الإضافة للسلة');
+    updateCounts(lvl); if(lvl > 1 && db[lvl].currentView === 'cart') renderClientApp(lvl);
+}
+function removeFromCart(lvl, idx) { db[lvl].cart.splice(idx, 1); updateCounts(lvl); if(lvl===1) renderCartL1(); else renderClientApp(lvl); }
+function updateCounts(lvl) {
+    const c = db[lvl].cart.length; const el = document.getElementById(`badge-cart-${lvl}`); el.textContent=c; el.classList.toggle('hidden', c===0);
+    if(lvl>1) { const n=db[lvl].notif.length; const ne=document.getElementById(`badge-notif-${lvl}`); ne.textContent=n; ne.classList.toggle('hidden', n===0); }
+}
+function submitOrder(lvl) {
+    if(!db[lvl].storeOpen) return showBanner('🛑 المتجر مغلق');
+    const d = db[lvl]; if(d.cart.length===0) return showBanner('السلة فارغة');
+    if(lvl>1 && !d.user) return showBanner('يجب تسجيل الدخول');
+    
+    const anim = document.getElementById('success-anim-container');
+    anim.classList.add('active');
+    setTimeout(() => anim.classList.remove('active'), 2500);
+
+    let total = d.cart.reduce((s,i)=>s+i.finalPrice, 0);
+    let discountVal = 0; // New variable
+    if (d.activeDiscount) {
+        discountVal = d.activeDiscount.type === 'percent' ? Math.round(total * (d.activeDiscount.val / 100)) : d.activeDiscount.val;
+        total = Math.max(0, total - discountVal);
+        d.activeDiscount = null; // Consume discount
+    }
+    
+    const note = lvl===1 ? document.getElementById('note-1').value : document.getElementById(`note-${lvl}`).value;
+    const gift = lvl>1 ? document.getElementById(`gift-input-${lvl}`).value : '';
+    const sched = lvl>1 ? document.getElementById(`sched-input-${lvl}`).value : '';
+    const addr = lvl>1 ? document.getElementById(`addr-sel-${lvl}`).value : document.getElementById('guest-addr-1').value;
+    const phone = lvl>1 ? d.user.phone : document.getElementById('guest-phone-1').value;
+
+    const order = { 
+        id: 1000 + d.orders.length + 1, 
+        items: [...d.cart], 
+        total: total, 
+        discountVal: discountVal, // Store discount value
+        client: (d.user?d.user.name:document.getElementById('guest-name-1').value), 
+        phone: phone,
+        addr: addr,
+        note: note,
+        gift: gift,
+        sched: sched,
+        time: new Date().toLocaleTimeString('ar-EG'), 
+        status: 'new' 
+    };
+    d.orders.unshift(order); d.cart = [];
+    
+    if(lvl>1) {
+        let cust = d.customers.find(c=>c.name===order.client);
+        if(cust) { cust.orders++; cust.total+=total; } else d.customers.push({name:order.client, phone:phone, orders:1, total:total});
+    }
+    if(lvl===3) { d.sales+=total; d.points+=Math.floor(total/10); pushNotif(3, 'نقاط مكتسبة', `+${Math.floor(total/10)} نقطة`); }
+    if(lvl>1) { pushNotif(lvl, 'تأكيد الطلب', `طلبك #${order.id} قيد التنفيذ`); nav(lvl, 'track'); }
+    else { nav(1, 'menu'); }
+    
+    renderLevel(lvl); playOrderSound();
+}
+function nextStatus(lvl, oid) {
+    const o = db[lvl].orders.find(x=>x.id===oid);
+    const flow = ['new', 'prep', 'deliv', 'done'];
+    const idx = flow.indexOf(o.status);
+    if(idx<3) { o.status = flow[idx+1]; if(lvl>1) pushNotif(lvl, 'تحديث الطلب', `طلبك #${oid}: ${getStatusText(o.status)}`); renderLevel(lvl); }
+}
+function getStatusText(st) { return st==='new'?'جديد':st==='prep'?'تجهيز':st==='deliv'?'توصيل':'تم'; }
+
+/* --- 7. DEMO MODE --- */
+async function runDemoMode() {
+    if(activeLevel !== 3) { switchLevel(3); await new Promise(r=>setTimeout(r, 500)); }
+    showBanner('🚀 تشغيل العرض التوضيحي (Demo Mode)...');
+    setTimeout(() => { 
+        db[3].activeDiscount = { type: 'percent', val: 20 };
+        pushNotif(3, '🔥 عرض جديد', 'خصم 20% على طلبك القادم! اضغط لتفعيل العرض', {type:'percent', val:20});
+        renderClientApp(3); showBanner('📢 تم إطلاق حملة تسويقية'); 
+    }, 1500);
+    setTimeout(() => { quickAdd(3, 3); showBanner('🛒 العميل يضيف منتج للسلة'); }, 3000);
+    setTimeout(() => { if(!db[3].user) db[3].user = {name:'ضيف الديمو', phone:'010000000'}; submitOrder(3); showBanner('💰 تم إتمام عملية بيع!'); }, 5000);
+    setTimeout(() => { setAdminTab(3, 'analytics', document.querySelectorAll('#level-3 .admin-tab')[0]); showBanner('📊 تحديث لوحة التحليلات تلقائياً'); }, 8000);
+}
+
+/* --- Helpers --- */
+function closeModal(lvl, type) { document.getElementById(`modal-${type}-${lvl}`).classList.remove('open'); }
+function toggleElem(id) { document.getElementById(id).classList.toggle('hidden'); }
+function toggleStore(lvl) { db[lvl].storeOpen = !db[lvl].storeOpen; showBanner(db[lvl].storeOpen?'✅ المتجر مفتوح':'🛑 تم إغلاق المتجر'); renderLevel(lvl); }
+function toggleProduct(lvl, pid) { 
+    const p = db[lvl].menu.find(x=>x.id===pid); 
+    p.active = !p.active; 
+    renderLevel(lvl); // Re-render to update client view immediately
+}
+function toggleFav(lvl, pid) { const d=db[lvl]; const i=d.fav.indexOf(pid); if(i>-1) d.fav.splice(i,1); else d.fav.push(pid); renderClientApp(lvl); showBanner(i>-1?'💔 حذف من المفضلة':'❤️ إضافة للمفضلة'); }
+function openLogin(lvl) { document.getElementById(`modal-login-${lvl}`).classList.add('open'); }
+function sendOtp(lvl) { toggleElem(`otp-area-${lvl}`); showBanner('🔑 رمز التحقق: 1234'); }
+function verifyOtp(lvl) { 
+    if(document.getElementById(`otp-code-${lvl}`).value==='1234') { 
+        db[lvl].user={
+            name:document.getElementById(`login-name-${lvl}`).value||'عميل', 
+            phone:document.getElementById(`login-phone-${lvl}`).value||'-'
+        }; 
+        closeModal(lvl,'login'); renderClientApp(lvl); showBanner('تم تسجيل الدخول');
+    } else {
+        showBanner('❌ رمز خاطئ! حاول مرة أخرى');
+    }
+}
+function logout(lvl) { db[lvl].user=null; nav(lvl,'home'); showBanner('تم تسجيل الخروج'); }
+
+// NEW: Address Modal Functions
+function openAddressModal(lvl) {
+    document.getElementById(`modal-address-${lvl}`).classList.add('open');
+}
+function saveAddress(lvl) {
+    const input = document.getElementById(`new-addr-${lvl}`);
+    const val = input.value;
+    if(val) {
+        db[lvl].addresses.push(val);
+        input.value = ''; // Reset input
+        closeModal(lvl, 'address');
+        renderClientApp(lvl); // Refresh dropdown
+        showBanner('✅ تم حفظ العنوان بنجاح');
+    } else {
+        showBanner('يرجى كتابة العنوان');
+    }
+}
+
+function sendPromo(lvl) { 
+    const t=document.getElementById('promo-title-3').value;
+    const type=document.getElementById('promo-type-3').value;
+    const val=parseFloat(document.getElementById('promo-val-3').value);
+    
+    if(t && val){
+        db[lvl].promo=t; 
+        pushNotif(lvl,'عرض خاص ✨', t, {type, val}); 
+        renderClientApp(lvl); 
+        showBanner('تم نشر العرض');
+    } 
+}
+
+function redeemPoints(oid) {
+    const offer = l3Offers.find(o=>o.id===oid);
+    if(!offer) return;
+    if(db[3].points >= offer.pts) {
+        db[3].points -= offer.pts;
+        if(offer.type === 'discount') {
+            db[3].cart.push({ name: offer.title, weightLabel: 'مكافأة', finalPrice: -offer.val, isReward: true });
+        } else if(offer.type === 'item') {
+            const prod = db[3].menu.find(p=>p.id === offer.val);
+            if(prod) db[3].cart.push({ ...prod, weight: 1, weightLabel: 'هدية مجانية', finalPrice: 0, isReward: true });
+        }
+        renderClientApp(3); showBanner('🎁 تم إضافة المكافأة للسلة');
+    } else { showBanner('النقاط لا تكفي'); }
+}
+
+function pushNotif(lvl, t, b, promoData = null) { 
+    db[lvl].notif.unshift({title:t, body:b, time:new Date().toLocaleTimeString('ar-EG'), promo: promoData}); 
+    updateCounts(lvl); 
+}
+
+function applyDiscount(lvl, idx) {
+    const notif = db[lvl].notif[idx];
+    if (notif && notif.promo) {
+        db[lvl].activeDiscount = notif.promo;
+        showBanner('✅ تم تفعيل العرض! سيتم خصمه عند الدفع');
+        // Remove 'Apply' button capability by removing promo data or just keep it active
+        // Ideally we redirect to cart or home
+        nav(lvl, 'home');
+    }
+}
+
+function showInvoice(lvl, oid) {
+    try {
+        const o = db[lvl].orders.find(x => x.id == oid);
+        if (!o) return;
+        const schedInfo = o.sched ? `<div class="mb-2"><strong>⏰ وقت الجدولة:</strong> ${o.sched.replace('T', ' ')}</div>` : '';
+        const giftInfo = o.gift ? `<div class="mb-2" style="background:#fef3c7;padding:5px;border-radius:4px"><strong>🎁 رسالة هدية:</strong><br>${o.gift}</div>` : '';
+        const noteInfo = o.note ? `<div class="mb-2"><strong>📝 ملاحظات:</strong> ${o.note}</div>` : '';
+        const discountInfo = o.discountVal > 0 ? `<div class="flex-between mb-1 text-success"><strong>خصم:</strong> <span>-${o.discountVal} ج.م</span></div>` : '';
+
+        document.getElementById(`invoice-content-${lvl}`).innerHTML = `
+            <div style="text-align:center;margin-bottom:15px;border-bottom:2px solid #eee;padding-bottom:10px">
+                <h3>فاتورة ضريبية مبسطة</h3>
+                <div class="small muted">${new Date().toLocaleDateString('ar-EG')}</div>
+            </div>
+            <div class="flex-between mb-1"><strong>رقم الطلب:</strong> <span>#${o.id}</span></div>
+            <div class="flex-between mb-2"><strong>وقت الطلب:</strong> <span>${o.time}</span></div>
+            <div class="mb-1"><strong>العميل:</strong> ${o.client}</div>
+            <div class="mb-1"><strong>الهاتف:</strong> ${o.phone || '-'}</div>
+            <div class="mb-2"><strong>العنوان:</strong> ${o.addr}</div>
+            ${schedInfo} ${noteInfo}
+            <hr style="border:1px dashed #ccc;margin:10px 0">
+            <div style="margin-bottom:10px">
+                ${o.items.map(i=> `<div class="flex-between mb-1" style="${i.finalPrice < 0 ? 'color:green' : ''}"><span>${i.name} <small class="muted">(${i.weightLabel})</small></span><span>${i.finalPrice} ج.م</span></div>`).join('')}
+            </div>
+            <hr style="border:1px dashed #ccc;margin:10px 0">
+            ${discountInfo}
+            ${giftInfo}
+            <div class="flex-between bold" style="font-size:1.1rem;background:#f8fafc;padding:10px;border-radius:8px"><span>الإجمالي النهائي</span><span>${o.total} ج.م</span></div>
+        `;
+        document.getElementById(`modal-invoice-${lvl}`).classList.add('open');
+    } catch (e) { console.error(e); }
+}
+
+// Init
+init();
+</script>
+</body>
+</html>
