@@ -35,18 +35,36 @@ button,select,input,textarea{font-family:inherit}
 button{cursor:pointer}
 .hidden{display:none!important}
 
-/* --- Presentation Mode --- */
-body.presentation .topbar { display: none; }
-body.presentation .admin-side { display: none; }
-body.presentation .container { max-width: 100%; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 0; margin: 0; }
-body.presentation .frame.mobile { transform: scale(1.1); box-shadow: 0 20px 50px rgba(0,0,0,0.3); border-width: 0; border-radius: 0; width: 100%; height: 100vh; max-width: 480px; border-radius: 20px; }
-body.presentation #exit-pres-btn { display: block; }
+/* --- Presentation Mode Styles --- */
+/* Common for presentation */
+body.pres-active .topbar,
+body.pres-active .pres-btn-area { display: none !important; }
+body.pres-active .container { 
+    max-width: 100%; height: 100vh; margin: 0; padding: 0; 
+    display: flex; align-items: center; justify-content: center; 
+}
+body.pres-active #exit-pres-btn { display: block; }
+
+/* Mobile Presentation Specifics */
+body.pres-mobile .admin-side { display: none; }
+body.pres-mobile .client-side { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+body.pres-mobile .frame.mobile { transform: scale(1.1); box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-radius: 40px; }
+
+/* Tablet Presentation Specifics */
+body.pres-tablet .client-side { display: none; }
+body.pres-tablet .admin-side { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+body.pres-tablet .frame.tablet { width: 90vw; height: 90vh; border-width: 10px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
 
 #exit-pres-btn {
     display: none; position: fixed; bottom: 20px; right: 20px; 
-    background: rgba(0,0,0,0.5); color: #fff; border: none; 
-    padding: 10px 20px; border-radius: 30px; z-index: 9999;
+    background: rgba(0,0,0,0.6); color: #fff; border: none; 
+    padding: 10px 25px; border-radius: 30px; z-index: 9999; 
+    font-weight: bold; backdrop-filter: blur(5px);
+    cursor: pointer; transition: 0.2s;
 }
+#exit-pres-btn:hover { background: rgba(0,0,0,0.8); }
+
+.pres-btn-area { text-align: center; margin-top: 15px; }
 
 /* --- Top Bar --- */
 .topbar{
@@ -88,9 +106,9 @@ body.presentation #exit-pres-btn { display: block; }
 .level-container.active{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-.workspace{display:flex;gap:20px;align-items:flex-start}
-.client-side{flex:0 0 380px;display:flex;justify-content:center}
-.admin-side{flex:1;min-width:0}
+.workspace{display:flex;gap:40px;align-items:flex-start;justify-content: center;}
+.client-side{flex:0 0 380px;display:flex;flex-direction:column;align-items:center}
+.admin-side{flex:1;min-width:0;display:flex;flex-direction:column}
 @media(max-width:900px){.workspace{flex-direction:column;align-items:center}.client-side{width:100%}.admin-side{width:100%}}
 
 /* --- Frames --- */
@@ -182,21 +200,6 @@ body.presentation #exit-pres-btn { display: block; }
 }
 .dark .modal-content{background:#1E293B;color:#fff}
 
-/* Documentation Overlay */
-#docs-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 5000; overflow-y: auto; padding: 20px; display: none; }
-#docs-overlay.open { display: block; }
-.docs-container { max-width: 900px; margin: 0 auto; padding-bottom: 50px; }
-.docs-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #ccc; }
-.docs-section { margin-bottom: 40px; padding: 20px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; background: rgba(0,0,0,0.02); }
-.dark .docs-section { border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.02); }
-.docs-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 15px; color: var(--l2); }
-.docs-subtitle { font-size: 1.1rem; font-weight: 700; margin: 15px 0 8px; color: var(--text); }
-.docs-text { line-height: 1.7; color: var(--text); margin-bottom: 10px; font-size: 0.95rem; }
-.docs-list { list-style: disc inside; margin: 10px 0; padding-right: 20px; }
-.docs-list li { margin-bottom: 6px; color: var(--muted); }
-.docs-code { font-family: monospace; background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 4px; display: inline-block; color: var(--danger); direction: ltr; }
-.dark .docs-code { background: rgba(255,255,255,0.1); color: var(--accent); }
-
 /* Helpers */
 .flex-between{display:flex;justify-content:space-between;align-items:center}
 .flex-center{display:flex;justify-content:center;align-items:center}
@@ -228,9 +231,6 @@ body.presentation #exit-pres-btn { display: block; }
     <div style="display:flex;gap:8px">
         <button class="toggle-btn" onclick="toggleTheme()" title="الوضع الليلي">🌓</button>
         <button class="toggle-btn" onclick="toggleSound()" title="الصوت">🔔</button>
-        <button class="toggle-btn" onclick="toggleDocs()" title="التوثيق" style="color:var(--l2);border-color:var(--l2)">📘</button>
-        <button class="toggle-btn" onclick="togglePresentation()" title="وضع العرض" style="color:var(--accent);border-color:var(--accent)">🎬</button>
-        <button class="toggle-btn" onclick="runDemoMode()" title="تشغيل الديمو" style="color:var(--success);border-color:var(--success)">▶️</button>
     </div>
     <div class="level-tabs">
         <button class="lvl-btn active" data-lvl="1" onclick="switchLevel(1)">مستوى 1</button>
@@ -238,21 +238,6 @@ body.presentation #exit-pres-btn { display: block; }
         <button class="lvl-btn" data-lvl="3" onclick="switchLevel(3)">مستوى 3</button>
     </div>
 </header>
-
-<!-- Documentation -->
-<div id="docs-overlay">
-    <div class="docs-container">
-        <div class="docs-header">
-            <h1>📘 توثيق مشروع الحلويات</h1>
-            <button class="toggle-btn" onclick="toggleDocs()">&times;</button>
-        </div>
-        <div class="docs-section">
-            <h2 class="docs-title">1️⃣ وصف عام للمشروع</h2>
-            <p class="docs-text">واجهة عرض لمحل حلويات (Sweet Shop Demo) تحاكي تطبيق العميل ولوحة الإدارة.</p>
-        </div>
-        <!-- (Rest of docs content similar to before) -->
-    </div>
-</div>
 
 <!-- Main Container -->
 <div class="container">
@@ -292,6 +277,9 @@ body.presentation #exit-pres-btn { display: block; }
                         </div>
                     </div>
                 </div>
+                <div class="pres-btn-area">
+                    <button class="btn btn-sm btn-outline text-l1" onclick="togglePresentation('mobile')">🎬 عرض شاشة التطبيق</button>
+                </div>
             </div>
             <div class="admin-side">
                 <div class="frame tablet">
@@ -316,6 +304,9 @@ body.presentation #exit-pres-btn { display: block; }
                             <button class="btn btn-block bg-l1" style="color:#fff" onclick="closeModal(1, 'invoice')">طباعة / إغلاق</button>
                         </div>
                     </div>
+                </div>
+                <div class="pres-btn-area">
+                    <button class="btn btn-sm btn-outline text-l1" onclick="togglePresentation('tablet')">🎬 عرض شاشة المحل</button>
                 </div>
             </div>
         </div>
@@ -382,6 +373,9 @@ body.presentation #exit-pres-btn { display: block; }
                         </div>
                     </div>
                 </div>
+                <div class="pres-btn-area">
+                    <button class="btn btn-sm btn-outline text-l2" onclick="togglePresentation('mobile')">🎬 عرض شاشة التطبيق</button>
+                </div>
             </div>
             <div class="admin-side">
                 <div class="frame tablet">
@@ -409,6 +403,9 @@ body.presentation #exit-pres-btn { display: block; }
                             <button class="btn btn-block bg-l2" style="color:#fff" onclick="closeModal(2, 'invoice')">طباعة</button>
                         </div>
                     </div>
+                </div>
+                <div class="pres-btn-area">
+                    <button class="btn btn-sm btn-outline text-l2" onclick="togglePresentation('tablet')">🎬 عرض شاشة المحل</button>
                 </div>
             </div>
         </div>
@@ -478,6 +475,9 @@ body.presentation #exit-pres-btn { display: block; }
                         </div>
                     </div>
                 </div>
+                <div class="pres-btn-area">
+                    <button class="btn btn-sm btn-outline text-l3" onclick="togglePresentation('mobile')">🎬 عرض شاشة التطبيق</button>
+                </div>
             </div>
             <div class="admin-side">
                 <div class="frame tablet">
@@ -506,6 +506,9 @@ body.presentation #exit-pres-btn { display: block; }
                             <button class="btn btn-block bg-l3" style="color:#fff" onclick="closeModal(3, 'invoice')">طباعة</button>
                         </div>
                     </div>
+                </div>
+                <div class="pres-btn-area">
+                    <button class="btn btn-sm btn-outline text-l3" onclick="togglePresentation('tablet')">🎬 عرض شاشة المحل</button>
                 </div>
             </div>
         </div>
@@ -570,33 +573,87 @@ let activeLevel = 1;
 /* --- 2. INIT --- */
 function init() {
     renderLevel(1);
-    // REMOVED AUTO DARK MODE
 }
 
 /* --- 3. GLOBAL ACTIONS --- */
 // Web Audio API for internal sound
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-function playOrderSound() {
-    if(!soundEnabled) return;
+
+function playSound(type) {
+    if (!soundEnabled) return;
     if (audioCtx.state === 'suspended') audioCtx.resume();
+
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.connect(gain);
     gain.connect(audioCtx.destination);
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(880, audioCtx.currentTime); // A5
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.5);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.5);
+
+    const now = audioCtx.currentTime;
+
+    switch (type) {
+        case 'success':
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(600, now);
+            osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+            gain.gain.setValueAtTime(0.3, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+            osc.start(now);
+            osc.stop(now + 0.5);
+            break;
+        case 'error':
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.linearRampToValueAtTime(100, now + 0.2);
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+            osc.start(now);
+            osc.stop(now + 0.2);
+            break;
+        case 'click':
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(800, now);
+            gain.gain.setValueAtTime(0.05, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+            osc.start(now);
+            osc.stop(now + 0.05);
+            break;
+        case 'pop':
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(400, now);
+            osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            osc.start(now);
+            osc.stop(now + 0.1);
+            break;
+        case 'notify':
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(500, now);
+            osc.frequency.setValueAtTime(800, now + 0.1);
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.linearRampToValueAtTime(0.2, now + 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+            osc.start(now);
+            osc.stop(now + 0.5);
+            break;
+        default:
+            break;
+    }
 }
 
 function toggleTheme() { document.body.classList.toggle('dark'); }
 function toggleSound() { soundEnabled = !soundEnabled; showBanner(soundEnabled?'🔔 الصوت مفعل':'🔕 الوضع الصامت'); }
-function toggleDocs() { document.getElementById('docs-overlay').classList.toggle('open'); }
-function togglePresentation() { 
-    document.body.classList.toggle('presentation'); 
-    if(document.body.classList.contains('presentation')) showBanner('تم تفعيل وضع العرض 🎬');
+function togglePresentation(type) { 
+    playSound('click');
+    if (!type) {
+        document.body.classList.remove('pres-active', 'pres-mobile', 'pres-tablet');
+        showBanner('❌ تم الخروج من وضع العرض');
+    } else {
+        document.body.classList.remove('pres-active', 'pres-mobile', 'pres-tablet');
+        document.body.classList.add('pres-active');
+        document.body.classList.add(type === 'mobile' ? 'pres-mobile' : 'pres-tablet');
+        showBanner(type === 'mobile' ? '📱 عرض شاشة التطبيق' : '🏪 عرض شاشة المحل');
+    }
 }
 function showBanner(msg) {
     const b = document.getElementById('banner');
@@ -607,6 +664,7 @@ function showBanner(msg) {
 
 /* --- 4. NAVIGATION & LEVELS --- */
 function switchLevel(lvl) {
+    playSound('click');
     activeLevel = lvl;
     document.querySelectorAll('.level-container').forEach(el => el.classList.remove('active'));
     document.getElementById(`level-${lvl}`).classList.add('active');
@@ -616,6 +674,7 @@ function switchLevel(lvl) {
     showBanner(`تم الانتقال إلى المستوى ${lvl}`);
 }
 function nav(lvl, view) {
+    playSound('click');
     if(lvl === 1) {
         if(view === 'menu') renderClientL1(db[1]);
         if(view === 'cart') renderCartL1();
@@ -632,6 +691,7 @@ function nav(lvl, view) {
     }
 }
 function setAdminTab(lvl, tab, btn) {
+    playSound('click');
     db[lvl].adminView = tab;
     const parent = btn.parentElement;
     Array.from(parent.children).forEach(c => c.classList.remove('active'));
@@ -851,6 +911,7 @@ function renderAdminPanel(lvl) {
 
 /* --- 6. ACTIONS --- */
 function openProductModal(lvl, pid) {
+    playSound('pop');
     const p = db[lvl].menu.find(x => x.id === pid); activeModalData = {lvl, p};
     document.getElementById(`mp-img-${lvl}`).src = p.img; document.getElementById(`mp-name-${lvl}`).textContent = p.name;
     document.getElementById(`mp-price-${lvl}`).textContent = (p.price * 0.25) + ' ج.م'; document.getElementById(`mp-weight-${lvl}`).value = 0.25;
@@ -862,39 +923,44 @@ function updateModalPrice(lvl) {
     document.getElementById(`mp-price-${lvl}`).textContent = Math.round(activeModalData.p.price * w) + ' ج.م';
 }
 function addToCartFromModal(lvl) {
+    playSound('click');
     if (!activeModalData || !activeModalData.p) return; 
     const w = parseFloat(document.getElementById(`mp-weight-${lvl}`).value);
     addItemToCart(lvl, activeModalData.p, w); closeModal(lvl, 'product');
 }
 function quickAdd(lvl, pid) {
+    playSound('click');
     const el = document.getElementById(`w-${lvl}-${pid}`); const w = el ? parseFloat(el.value) : 0.25;
     addItemToCart(lvl, db[lvl].menu.find(x=>x.id===pid), w);
 }
 // Special wrapper for Fav screen to handle unique ID
 function quickAddFav(lvl, pid) {
+    playSound('click');
     const el = document.getElementById(`w-fav-${lvl}-${pid}`); const w = el ? parseFloat(el.value) : 0.25;
     addItemToCart(lvl, db[lvl].menu.find(x=>x.id===pid), w);
 }
 
 function addItemToCart(lvl, p, w) {
-    if(!db[lvl].storeOpen) return showBanner('🛑 المتجر مغلق حالياً');
+    if(!db[lvl].storeOpen) { playSound('error'); return showBanner('🛑 المتجر مغلق حالياً'); }
     const wLabels = {0.25:'ربع كيلو', 0.5:'نصف كيلو', 1:'كيلو'};
     db[lvl].cart.push({ ...p, weight: w, weightLabel: wLabels[w], finalPrice: Math.round(p.price * w) });
+    playSound('success');
     showBanner('✅ تمت الإضافة للسلة');
     updateCounts(lvl); if(lvl > 1 && db[lvl].currentView === 'cart') renderClientApp(lvl);
 }
-function removeFromCart(lvl, idx) { db[lvl].cart.splice(idx, 1); updateCounts(lvl); if(lvl===1) renderCartL1(); else renderClientApp(lvl); }
+function removeFromCart(lvl, idx) { playSound('click'); db[lvl].cart.splice(idx, 1); updateCounts(lvl); if(lvl===1) renderCartL1(); else renderClientApp(lvl); }
 function updateCounts(lvl) {
     const c = db[lvl].cart.length; const el = document.getElementById(`badge-cart-${lvl}`); el.textContent=c; el.classList.toggle('hidden', c===0);
     if(lvl>1) { const n=db[lvl].notif.length; const ne=document.getElementById(`badge-notif-${lvl}`); ne.textContent=n; ne.classList.toggle('hidden', n===0); }
 }
 function submitOrder(lvl) {
-    if(!db[lvl].storeOpen) return showBanner('🛑 المتجر مغلق');
-    const d = db[lvl]; if(d.cart.length===0) return showBanner('السلة فارغة');
-    if(lvl>1 && !d.user) return showBanner('يجب تسجيل الدخول');
+    if(!db[lvl].storeOpen) { playSound('error'); return showBanner('🛑 المتجر مغلق'); }
+    const d = db[lvl]; if(d.cart.length===0) { playSound('error'); return showBanner('السلة فارغة'); }
+    if(lvl>1 && !d.user) { playSound('error'); return showBanner('يجب تسجيل الدخول'); }
     
     const anim = document.getElementById('success-anim-container');
     anim.classList.add('active');
+    playSound('success');
     setTimeout(() => anim.classList.remove('active'), 2500);
 
     let total = d.cart.reduce((s,i)=>s+i.finalPrice, 0);
@@ -935,9 +1001,10 @@ function submitOrder(lvl) {
     if(lvl>1) { pushNotif(lvl, 'تأكيد الطلب', `طلبك #${order.id} قيد التنفيذ`); nav(lvl, 'track'); }
     else { nav(1, 'menu'); }
     
-    renderLevel(lvl); playOrderSound();
+    renderLevel(lvl);
 }
 function nextStatus(lvl, oid) {
+    playSound('click');
     const o = db[lvl].orders.find(x=>x.id===oid);
     const flow = ['new', 'prep', 'deliv', 'done'];
     const idx = flow.indexOf(o.status);
@@ -945,47 +1012,37 @@ function nextStatus(lvl, oid) {
 }
 function getStatusText(st) { return st==='new'?'جديد':st==='prep'?'تجهيز':st==='deliv'?'توصيل':'تم'; }
 
-/* --- 7. DEMO MODE --- */
-async function runDemoMode() {
-    if(activeLevel !== 3) { switchLevel(3); await new Promise(r=>setTimeout(r, 500)); }
-    showBanner('🚀 تشغيل العرض التوضيحي (Demo Mode)...');
-    setTimeout(() => { 
-        db[3].activeDiscount = { type: 'percent', val: 20 };
-        pushNotif(3, '🔥 عرض جديد', 'خصم 20% على طلبك القادم! اضغط لتفعيل العرض', {type:'percent', val:20});
-        renderClientApp(3); showBanner('📢 تم إطلاق حملة تسويقية'); 
-    }, 1500);
-    setTimeout(() => { quickAdd(3, 3); showBanner('🛒 العميل يضيف منتج للسلة'); }, 3000);
-    setTimeout(() => { if(!db[3].user) db[3].user = {name:'ضيف الديمو', phone:'010000000'}; submitOrder(3); showBanner('💰 تم إتمام عملية بيع!'); }, 5000);
-    setTimeout(() => { setAdminTab(3, 'analytics', document.querySelectorAll('#level-3 .admin-tab')[0]); showBanner('📊 تحديث لوحة التحليلات تلقائياً'); }, 8000);
-}
-
 /* --- Helpers --- */
-function closeModal(lvl, type) { document.getElementById(`modal-${type}-${lvl}`).classList.remove('open'); }
-function toggleElem(id) { document.getElementById(id).classList.toggle('hidden'); }
+function closeModal(lvl, type) { playSound('click'); document.getElementById(`modal-${type}-${lvl}`).classList.remove('open'); }
+function toggleElem(id) { playSound('click'); document.getElementById(id).classList.toggle('hidden'); }
 function toggleStore(lvl) { db[lvl].storeOpen = !db[lvl].storeOpen; showBanner(db[lvl].storeOpen?'✅ المتجر مفتوح':'🛑 تم إغلاق المتجر'); renderLevel(lvl); }
 function toggleProduct(lvl, pid) { 
+    playSound('click');
     const p = db[lvl].menu.find(x=>x.id===pid); 
     p.active = !p.active; 
     renderLevel(lvl); // Re-render to update client view immediately
 }
-function toggleFav(lvl, pid) { const d=db[lvl]; const i=d.fav.indexOf(pid); if(i>-1) d.fav.splice(i,1); else d.fav.push(pid); renderClientApp(lvl); showBanner(i>-1?'💔 حذف من المفضلة':'❤️ إضافة للمفضلة'); }
-function openLogin(lvl) { document.getElementById(`modal-login-${lvl}`).classList.add('open'); }
-function sendOtp(lvl) { toggleElem(`otp-area-${lvl}`); showBanner('🔑 رمز التحقق: 1234'); }
+function toggleFav(lvl, pid) { playSound('click'); const d=db[lvl]; const i=d.fav.indexOf(pid); if(i>-1) d.fav.splice(i,1); else d.fav.push(pid); renderClientApp(lvl); showBanner(i>-1?'💔 حذف من المفضلة':'❤️ إضافة للمفضلة'); }
+function openLogin(lvl) { playSound('pop'); document.getElementById(`modal-login-${lvl}`).classList.add('open'); }
+function sendOtp(lvl) { playSound('click'); toggleElem(`otp-area-${lvl}`); showBanner('🔑 رمز التحقق: 1234'); }
 function verifyOtp(lvl) { 
     if(document.getElementById(`otp-code-${lvl}`).value==='1234') { 
         db[lvl].user={
             name:document.getElementById(`login-name-${lvl}`).value||'عميل', 
             phone:document.getElementById(`login-phone-${lvl}`).value||'-'
         }; 
+        playSound('success');
         closeModal(lvl,'login'); renderClientApp(lvl); showBanner('تم تسجيل الدخول');
     } else {
+        playSound('error');
         showBanner('❌ رمز خاطئ! حاول مرة أخرى');
     }
 }
-function logout(lvl) { db[lvl].user=null; nav(lvl,'home'); showBanner('تم تسجيل الخروج'); }
+function logout(lvl) { playSound('click'); db[lvl].user=null; nav(lvl,'home'); showBanner('تم تسجيل الخروج'); }
 
 // NEW: Address Modal Functions
 function openAddressModal(lvl) {
+    playSound('pop');
     document.getElementById(`modal-address-${lvl}`).classList.add('open');
 }
 function saveAddress(lvl) {
@@ -997,8 +1054,10 @@ function saveAddress(lvl) {
         closeModal(lvl, 'address');
         renderClientApp(lvl); // Refresh dropdown
         showBanner('✅ تم حفظ العنوان بنجاح');
+        playSound('success');
     } else {
         showBanner('يرجى كتابة العنوان');
+        playSound('error');
     }
 }
 
@@ -1012,6 +1071,7 @@ function sendPromo(lvl) {
         pushNotif(lvl,'عرض خاص ✨', t, {type, val}); 
         renderClientApp(lvl); 
         showBanner('تم نشر العرض');
+        playSound('notify');
     } 
 }
 
@@ -1026,13 +1086,14 @@ function redeemPoints(oid) {
             const prod = db[3].menu.find(p=>p.id === offer.val);
             if(prod) db[3].cart.push({ ...prod, weight: 1, weightLabel: 'هدية مجانية', finalPrice: 0, isReward: true });
         }
-        renderClientApp(3); showBanner('🎁 تم إضافة المكافأة للسلة');
-    } else { showBanner('النقاط لا تكفي'); }
+        renderClientApp(3); showBanner('🎁 تم إضافة المكافأة للسلة'); playSound('success');
+    } else { showBanner('النقاط لا تكفي'); playSound('error'); }
 }
 
 function pushNotif(lvl, t, b, promoData = null) { 
     db[lvl].notif.unshift({title:t, body:b, time:new Date().toLocaleTimeString('ar-EG'), promo: promoData}); 
     updateCounts(lvl); 
+    playSound('notify');
 }
 
 function applyDiscount(lvl, idx) {
@@ -1040,6 +1101,7 @@ function applyDiscount(lvl, idx) {
     if (notif && notif.promo) {
         db[lvl].activeDiscount = notif.promo;
         showBanner('✅ تم تفعيل العرض! سيتم خصمه عند الدفع');
+        playSound('success');
         // Remove 'Apply' button capability by removing promo data or just keep it active
         // Ideally we redirect to cart or home
         nav(lvl, 'home');
@@ -1047,6 +1109,7 @@ function applyDiscount(lvl, idx) {
 }
 
 function showInvoice(lvl, oid) {
+    playSound('pop');
     try {
         const o = db[lvl].orders.find(x => x.id == oid);
         if (!o) return;
