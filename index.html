@@ -12,22 +12,24 @@
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 
 <style>
-/* --- CORE VARIABLES (High Contrast & No-White-Elements Rule) --- */
+/* --- CORE VARIABLES --- */
 :root{
     /* Light Mode */
-    --bg:#FFFFFF; /* Only main background is White */
+    --bg:#FFFFFF; 
     --text:#0F172A;
     --muted:#475569;
     
-    /* Elements are NOT white (Light Grays/Tints) */
-    --card-bg: #F1F5F9; /* Slate-100 */
-    --card-border: #CBD5E1;
+    --card-bg: #F8FAFC;
+    --card-border: #E2E8F0;
+    --input-bg: #FFFFFF;
     
-    /* Inputs & Buttons */
-    --input-bg: #E2E8F0; /* Slate-200 */
-    --btn-default-bg: #D1D5DB; /* Gray-300 */
-    --btn-default-text: #1F2937;
-    --btn-hover: #9CA3AF;
+    /* Functional Button Colors */
+    --btn-danger-bg: #EF4444;
+    --btn-danger-text: #FFFFFF;
+    --btn-secondary-bg: #E2E8F0;
+    --btn-secondary-text: #475569;
+    --btn-pres-bg: #1E293B; /* Dark for Presentation buttons */
+    --btn-pres-text: #FFFFFF;
 
     /* Brand Colors */
     --l1:#9A3412; --l1-light:#EA580C;
@@ -36,38 +38,44 @@
     
     --accent:#F59E0B; --danger:#DC2626; --success:#16A34A;
     
-    /* Shadows */
-    --card-shadow:0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
-    --hover-shadow:0 20px 25px -5px rgba(0,0,0,0.15), 0 10px 10px -5px rgba(0,0,0,0.04);
+    --card-shadow:0 4px 6px -1px rgba(0,0,0,0.05), 0 10px 15px -3px rgba(0,0,0,0.05);
+    --hover-shadow:0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
     
-    --modal-overlay:rgba(15, 23, 42, 0.75);
-    --offline-bg:rgba(241, 245, 249, 0.98);
+    /* Glassmorphism Variables */
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --modal-overlay:rgba(15, 23, 42, 0.65);
+    --offline-bg:rgba(255, 255, 255, 0.9);
 }
 
 :root.dark{
     /* Dark Mode */
-    --bg:#020617; /* Almost Black */
+    --bg:#020617;
     --text:#F8FAFC;
     --muted:#94A3B8;
     
-    /* Elements */
-    --card-bg: #1E293B; /* Slate-800 */
+    --card-bg: #1E293B;
     --card-border: #334155;
+    --input-bg: #0F172A;
     
-    /* Inputs & Buttons */
-    --input-bg: #0F172A; /* Slate-900 */
-    --btn-default-bg: #334155;
-    --btn-default-text: #F8FAFC;
-    --btn-hover: #475569;
+    /* Dark Mode Buttons */
+    --btn-danger-bg: #DC2626;
+    --btn-secondary-bg: #334155;
+    --btn-secondary-text: #F1F5F9;
+    --btn-pres-bg: #F1F5F9; /* White for Pres buttons in dark mode */
+    --btn-pres-text: #0F172A;
 
-    /* Brand Colors Lighter */
     --l1:#FB923C; --l1-light:#FDBA74; 
     --l2:#38BDF8; --l2-light:#7DD3FC; 
     --l3:#4ADE80; --l3-light:#86EFAC; 
     
     --card-shadow:0 10px 15px -3px rgba(0, 0, 0, 0.7);
-    --modal-overlay:rgba(0,0,0,0.9);
-    --offline-bg:rgba(2, 6, 23, 0.98);
+    
+    /* Glassmorphism Dark */
+    --glass-bg: rgba(30, 41, 59, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --modal-overlay:rgba(0,0,0,0.85);
+    --offline-bg:rgba(2, 6, 23, 0.95);
 }
 
 /* --- GLOBAL RESET --- */
@@ -100,7 +108,7 @@ body.pres-tablet .frame.tablet { width: 95vw; height: 95vh; border-width: 0; bor
 
 #exit-pres-btn {
     display: none; position: fixed; bottom: 30px; right: 30px; 
-    background: var(--danger); color: #fff; border: none; 
+    background: var(--btn-danger-bg); color: #fff; border: none; 
     padding: 12px 25px; border-radius: 99px; z-index: 9999; 
     font-weight: bold; backdrop-filter: blur(10px);
     cursor: pointer; transition: 0.2s; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
@@ -109,6 +117,14 @@ body.pres-tablet .frame.tablet { width: 95vw; height: 95vh; border-width: 0; bor
 #exit-pres-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
 
 .pres-btn-area { text-align: center; margin-top: 15px; }
+/* Styling the Presentation Button distinctively */
+.btn-pres {
+    background-color: var(--btn-pres-bg) !important;
+    color: var(--btn-pres-text) !important;
+    border: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+.btn-pres:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.25); }
 
 /* --- LAYOUT --- */
 .topbar{
@@ -132,7 +148,7 @@ body.pres-tablet .frame.tablet { width: 95vw; height: 95vh; border-width: 0; bor
 .frame{
     background:var(--bg); 
     border-radius:35px; box-shadow:var(--card-shadow);
-    border:12px solid #1E293B; /* Device Bezel Color */
+    border:12px solid #1E293B; 
     overflow:hidden; display:flex; flex-direction:column;
     position:relative; transition: border-color 0.3s;
 }
@@ -147,7 +163,7 @@ body.pres-tablet .frame.tablet { width: 95vw; height: 95vh; border-width: 0; bor
 }
 .app-body{
     flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px;
-    background: var(--bg); /* Matches global bg, but inside frame */
+    background: var(--bg); 
     transition: background 0.3s;
 }
 
@@ -170,6 +186,7 @@ body.pres-tablet .frame.tablet { width: 95vw; height: 95vh; border-width: 0; bor
 .product-card:hover { transform: translateY(-4px) scale(1.02); box-shadow: var(--hover-shadow); border-color: var(--l2); }
 .product-card .p-img { width: 90px; height: 90px; border-radius: 12px; object-fit: cover; transition: transform 0.3s; border: 1px solid var(--card-border); }
 .product-card:hover .p-img { transform: scale(1.05) rotate(2deg); }
+#level-3 .product-card:hover { transform: perspective(1000px) rotateX(2deg) rotateY(2deg) scale(1.02); }
 
 .prod-badge {
     position: absolute; top: 10px; right: 10px;
@@ -179,7 +196,7 @@ body.pres-tablet .frame.tablet { width: 95vw; height: 95vh; border-width: 0; bor
     animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.skeleton { background: var(--btn-default-bg); background-image: linear-gradient(90deg, var(--btn-default-bg) 0px, var(--card-bg) 40px, var(--btn-default-bg) 80px); background-size: 600px; animation: shimmer 1.6s infinite linear; border-radius: 8px; color: transparent !important; }
+.skeleton { background: var(--card-border); background-image: linear-gradient(90deg, var(--card-border) 0px, var(--bg) 40px, var(--card-border) 80px); background-size: 600px; animation: shimmer 1.6s infinite linear; border-radius: 8px; color: transparent !important; }
 
 .app-nav{
     background:var(--card-bg);padding:12px 0;border-top:1px solid var(--card-border);
@@ -187,29 +204,36 @@ body.pres-tablet .frame.tablet { width: 95vw; height: 95vh; border-width: 0; bor
     border-radius: 0 0 25px 25px; z-index: 10;
 }
 .nav-item{display:flex;flex-direction:column;align-items:center;font-size:0.75rem;color:var(--muted);gap:6px;cursor:pointer;position:relative;padding:6px 12px;transition:0.2s;border-radius:12px}
-.nav-item:hover{background:var(--btn-default-bg)}
+.nav-item:hover{background:var(--btn-secondary-bg)}
 .nav-item i { font-size: 1.4rem; transition: transform 0.2s; }
-.nav-item.active{color:var(--l2); font-weight:800; background:var(--btn-default-bg)}
+.nav-item.active{color:var(--l2); font-weight:800; background:var(--btn-secondary-bg)}
 .nav-item.active i { transform: translateY(-4px); }
 
-/* --- BUTTONS & INPUTS (Solid Colors) --- */
+/* --- BUTTONS (Functional Coloring) --- */
 .btn{
-    border:1px solid var(--card-border); border-radius:12px; padding:10px 16px; font-weight:700; font-size:0.95rem;
+    border:none; border-radius:12px; padding:10px 16px; font-weight:700; font-size:0.95rem;
     display:inline-flex;align-items:center;justify-content:center;gap:8px;
     transition:all 0.2s; cursor:pointer; position: relative; overflow: hidden;
-    background-color: var(--btn-default-bg); color: var(--btn-default-text);
+    /* Default to Primary Level Color logic handled in JS/HTML classes, but set a base fallback */
+    background-color: var(--btn-secondary-bg); color: var(--text);
 }
-.btn:hover{background-color: var(--btn-hover); transform: translateY(-1px); box-shadow: 0 4px 6px rgba(0,0,0,0.1);}
+.btn:hover{filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.1);}
 .btn:active{transform:scale(0.96) translateY(0);}
 
-.btn-outline { background: transparent; border: 2px solid currentColor; }
-.btn-outline:hover { background: var(--btn-default-bg); color: var(--text); }
+/* Danger Buttons (Red) */
+.btn-danger { background-color: var(--btn-danger-bg) !important; color: var(--btn-danger-text) !important; }
+.btn-danger:hover { box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); }
 
+/* Outline/Secondary Buttons (Transparent with Border) */
+.btn-outline { background: transparent; border: 2px solid currentColor; color: inherit; }
+.btn-outline:hover { background: var(--btn-secondary-bg); border-color: transparent; color: var(--text); }
+
+/* Level Buttons */
 .lvl-btn{
     padding:8px 20px; border-radius:99px; border:1px solid var(--card-border); font-weight:700; font-size:0.9rem;
     background: var(--card-bg); color: var(--text); transition:all .3s;
 }
-.lvl-btn:hover{background: var(--btn-hover);}
+.lvl-btn:hover{background: var(--btn-secondary-bg);}
 .lvl-btn.active{color:#fff; border-color:transparent; box-shadow:0 4px 15px rgba(0,0,0,0.2); transform:translateY(-2px)}
 .lvl-btn[data-lvl="1"].active{background:var(--l1)}
 .lvl-btn[data-lvl="2"].active{background:var(--l2)}
@@ -221,10 +245,10 @@ body.pres-tablet .frame.tablet { width: 95vw; height: 95vh; border-width: 0; bor
     display:flex;align-items:center;justify-content:center;font-size:1.2rem;transition:0.2s;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
-.toggle-btn:hover{background:var(--btn-hover);transform:scale(1.05)}
+.toggle-btn:hover{background:var(--btn-secondary-bg);transform:scale(1.05)}
 
 .input, .select, .textarea{
-    width:100%;padding:12px;border-radius:12px;border:1px solid var(--card-border);
+    width:100%;padding:12px;border-radius:12px;border:2px solid var(--card-border);
     background:var(--input-bg); color:var(--text); font-size:0.95rem;margin-bottom:10px;outline:none;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -232,12 +256,12 @@ body.pres-tablet .frame.tablet { width: 95vw; height: 95vh; border-width: 0; bor
 
 .chip{
     font-size:0.8rem;padding:6px 12px;border-radius:99px;
-    background:var(--btn-default-bg); color:var(--text); font-weight: 600;
+    background:var(--btn-secondary-bg); color:var(--text); font-weight: 600;
     display:inline-flex;align-items:center;gap:6px;cursor:pointer; transition: 0.2s; border: 1px solid var(--card-border);
 }
-.chip:hover { background: var(--btn-hover); }
+.chip:hover { background: var(--card-border); }
 
-/* --- MODALS & OVERLAYS --- */
+/* --- GLASSMORPHISM MODALS --- */
 .modal-overlay{
     position:absolute;inset:0;background:var(--modal-overlay);z-index:3000;
     display:none;align-items:center;justify-content:center;padding:20px;
@@ -245,9 +269,12 @@ body.pres-tablet .frame.tablet { width: 95vw; height: 95vh; border-width: 0; bor
 }
 .modal-overlay.open{display:flex}
 .modal-content{
-    background:var(--card-bg);width:100%;max-width:340px;border-radius:20px;padding:20px;
-    box-shadow:0 20px 60px rgba(0,0,0,0.5);max-height:90%;overflow-y:auto; color: var(--text);
-    border: 1px solid var(--card-border);
+    background: var(--glass-bg); /* Glass effect */
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    width:100%;max-width:340px;border-radius:20px;padding:20px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.4);max-height:90%;overflow-y:auto; color: var(--text);
 }
 .frame.mobile .modal-overlay { align-items: flex-end; padding: 0; }
 .frame.mobile .modal-content {
@@ -256,6 +283,7 @@ body.pres-tablet .frame.tablet { width: 95vw; height: 95vh; border-width: 0; bor
     margin: 0; padding-bottom: 40px; border-bottom: none;
 }
 
+/* --- OFFLINE OVERLAY --- */
 .offline-overlay {
     position: absolute; inset: 0; background: var(--offline-bg);
     backdrop-filter: blur(8px); z-index: 2000; 
@@ -265,7 +293,7 @@ body.pres-tablet .frame.tablet { width: 95vw; height: 95vh; border-width: 0; bor
 }
 .offline-overlay.active { opacity: 1; pointer-events: all; }
 
-/* --- BANNER (Top Center Fixed) --- */
+/* --- BANNER --- */
 #banner {
     position: fixed; top: 100px; left: 50%; transform: translateX(-50%) translateY(-150%);
     background: #1E293B; color: #fff; padding: 12px 24px; border-radius: 99px;
@@ -280,8 +308,8 @@ body.pres-tablet .frame.tablet { width: 95vw; height: 95vh; border-width: 0; bor
 /* --- EXTRAS --- */
 .cart-shake { animation: shake 0.5s ease-in-out; }
 .timeline{display:flex;align-items:center;justify-content:space-between;margin-top:15px;position:relative;padding:0 5px}
-.timeline::before{content:'';position:absolute;top:50%;left:0;right:0;height:4px;background:var(--btn-default-bg);z-index:0;border-radius:10px}
-.tl-step{width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:3px solid var(--btn-default-bg);z-index:1;display:flex;align-items:center;justify-content:center;font-size:0.9rem;color:var(--muted);transition:all .4s}
+.timeline::before{content:'';position:absolute;top:50%;left:0;right:0;height:4px;background:var(--btn-secondary-bg);z-index:0;border-radius:10px}
+.tl-step{width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:3px solid var(--btn-secondary-bg);z-index:1;display:flex;align-items:center;justify-content:center;font-size:0.9rem;color:var(--muted);transition:all .4s}
 .tl-step.done{background:var(--success);border-color:var(--success);color:#fff;transform:scale(1.15)}
 </style>
 </head>
@@ -341,18 +369,18 @@ body.pres-tablet .frame.tablet { width: 95vw; height: 95vh; border-width: 0; bor
                         </div>
                     </div>
                 </div>
-                <div class="pres-btn-area"><button class="btn btn-sm btn-outline text-l1" onclick="togglePresentation('mobile')">🎬 عرض شاشة التطبيق</button></div>
+                <div class="pres-btn-area"><button class="btn btn-sm btn-pres" onclick="togglePresentation('mobile')">🎬 عرض شاشة التطبيق</button></div>
             </div>
             <div class="admin-side">
                 <div class="frame tablet">
-                    <div class="app-header bg-l1"><span>KDS (المطبخ) - مستوى 1</span><button id="store-toggle-1" class="btn btn-sm btn-outline" style="color:#fff;border-color:#fff" onclick="toggleStore(1)">إغلاق المحل</button></div>
+                    <div class="app-header bg-l1"><span>KDS (المطبخ) - مستوى 1</span><button id="store-toggle-1" class="btn btn-sm btn-danger" onclick="toggleStore(1)">إغلاق المحل</button></div>
                     <div class="app-body" style="flex-direction:row;gap:20px;background:var(--card-bg)">
                         <div style="flex:2;overflow-y:auto;padding-right:10px"><h4 class="mb-4 text-l1">الطلبات الحالية</h4><div id="orders-list-1" style="display:flex;flex-direction:column;gap:10px"></div></div>
-                        <div style="flex:1;border-right:1px solid var(--btn-default-bg);padding-right:16px;overflow-y:auto"><h4 class="mb-4 text-l1">التحكم بالقائمة</h4><div id="menu-list-1" style="display:flex;flex-direction:column;gap:8px"></div></div>
+                        <div style="flex:1;border-right:1px solid var(--card-border);padding-right:16px;overflow-y:auto"><h4 class="mb-4 text-l1">التحكم بالقائمة</h4><div id="menu-list-1" style="display:flex;flex-direction:column;gap:8px"></div></div>
                     </div>
                     <div id="modal-invoice-1" class="modal-overlay"><div class="modal-content" style="max-width:400px"><div id="invoice-content-1"></div><button class="btn btn-block bg-l1" style="color:#fff" onclick="closeModal(1, 'invoice')">طباعة / إغلاق</button></div></div>
                 </div>
-                <div class="pres-btn-area"><button class="btn btn-sm btn-outline text-l1" onclick="togglePresentation('tablet')">🎬 عرض شاشة المحل</button></div>
+                <div class="pres-btn-area"><button class="btn btn-sm btn-pres" onclick="togglePresentation('tablet')">🎬 عرض شاشة المحل</button></div>
             </div>
         </div>
     </div>
@@ -376,18 +404,18 @@ body.pres-tablet .frame.tablet { width: 95vw; height: 95vh; border-width: 0; bor
                     <div id="modal-login-2" class="modal-overlay"><div class="modal-content"><h3 class="center mb-4">تسجيل الدخول</h3><input id="login-name-2" class="input" placeholder="الاسم"><input id="login-phone-2" class="input" placeholder="الجوال"><button class="btn btn-block bg-l2 mb-2" style="color:#fff" onclick="sendOtp(2)">إرسال الرمز</button><div id="otp-area-2" class="hidden"><input id="otp-code-2" class="input" placeholder="الرمز (1234)"><button class="btn btn-block bg-l2" style="color:#fff" onclick="verifyOtp(2)">تأكيد</button></div><button class="btn btn-block btn-outline mt-2" onclick="closeModal(2, 'login')">إلغاء</button></div></div>
                     <div id="modal-address-2" class="modal-overlay"><div class="modal-content"><h3 class="center mb-4">عنوان جديد</h3><input id="new-addr-2" class="input" placeholder="المنزل - المعادي..."><button class="btn btn-block bg-l2" style="color:#fff" onclick="saveAddress(2)">حفظ</button><button class="btn btn-block btn-outline mt-2" onclick="closeModal(2, 'address')">إلغاء</button></div></div>
                 </div>
-                <div class="pres-btn-area"><button class="btn btn-sm btn-outline text-l2" onclick="togglePresentation('mobile')">🎬 عرض شاشة التطبيق</button></div>
+                <div class="pres-btn-area"><button class="btn btn-sm btn-pres" onclick="togglePresentation('mobile')">🎬 عرض شاشة التطبيق</button></div>
             </div>
             <div class="admin-side">
                 <div class="frame tablet">
-                    <div class="app-header bg-l2"><span>غرفة العمليات (Ops Room)</span><button id="store-toggle-2" class="btn btn-sm btn-outline" style="color:#fff;border-color:#fff" onclick="toggleStore(2)">إغلاق المحل</button></div>
+                    <div class="app-header bg-l2"><span>غرفة العمليات (Ops Room)</span><button id="store-toggle-2" class="btn btn-sm btn-danger" onclick="toggleStore(2)">إغلاق المحل</button></div>
                     <div class="app-body" style="flex-direction:row;gap:20px;background:var(--card-bg)">
                         <div style="flex:1.8;overflow-y:auto;padding-right:10px"><h4 class="mb-4 text-l2">سجل الطلبات</h4><div id="orders-list-2" style="display:flex;flex-direction:column;gap:10px"></div></div>
-                        <div style="flex:1.2;border-right:1px solid var(--btn-default-bg);padding-right:16px;display:flex;flex-direction:column"><div class="admin-tabs"><div class="admin-tab active" onclick="setAdminTab(2, 'menu', this)">القائمة</div><div class="admin-tab" onclick="setAdminTab(2, 'customers', this)">العملاء (CRM)</div></div><div id="admin-panel-2" style="flex:1;overflow-y:auto"></div></div>
+                        <div style="flex:1.2;border-right:1px solid var(--card-border);padding-right:16px;display:flex;flex-direction:column"><div class="admin-tabs"><div class="admin-tab active" onclick="setAdminTab(2, 'menu', this)">القائمة</div><div class="admin-tab" onclick="setAdminTab(2, 'customers', this)">العملاء (CRM)</div></div><div id="admin-panel-2" style="flex:1;overflow-y:auto"></div></div>
                     </div>
                     <div id="modal-invoice-2" class="modal-overlay"><div class="modal-content" style="max-width:400px"><h3 class="center mb-2">فاتورة طلب</h3><div id="invoice-content-2" style="border:1px dashed var(--muted);padding:10px;margin-bottom:10px;font-family:monospace;font-size:0.9rem"></div><button class="btn btn-block bg-l2" style="color:#fff" onclick="closeModal(2, 'invoice')">طباعة</button></div></div>
                 </div>
-                <div class="pres-btn-area"><button class="btn btn-sm btn-outline text-l2" onclick="togglePresentation('tablet')">🎬 عرض شاشة المحل</button></div>
+                <div class="pres-btn-area"><button class="btn btn-sm btn-pres" onclick="togglePresentation('tablet')">🎬 عرض شاشة المحل</button></div>
             </div>
         </div>
     </div>
@@ -411,28 +439,28 @@ body.pres-tablet .frame.tablet { width: 95vw; height: 95vh; border-width: 0; bor
                     <div id="modal-login-3" class="modal-overlay"><div class="modal-content"><h3 class="center mb-4">تسجيل الدخول</h3><input id="login-name-3" class="input" placeholder="الاسم"><input id="login-phone-3" class="input" placeholder="الجوال"><button class="btn btn-block bg-l3 mb-2" style="color:#fff" onclick="sendOtp(3)">إرسال الرمز</button><div id="otp-area-3" class="hidden"><input id="otp-code-3" class="input" placeholder="الرمز (1234)"><button class="btn btn-block bg-l3" style="color:#fff" onclick="verifyOtp(3)">تأكيد</button></div><button class="btn btn-block btn-outline mt-2" onclick="closeModal(3, 'login')">إلغاء</button></div></div>
                     <div id="modal-address-3" class="modal-overlay"><div class="modal-content"><h3 class="center mb-4">عنوان جديد</h3><input id="new-addr-3" class="input" placeholder="المنزل - المعادي..."><button class="btn btn-block bg-l3" style="color:#fff" onclick="saveAddress(3)">حفظ</button><button class="btn btn-block btn-outline mt-2" onclick="closeModal(3, 'address')">إلغاء</button></div></div>
                 </div>
-                <div class="pres-btn-area"><button class="btn btn-sm btn-outline text-l3" onclick="togglePresentation('mobile')">🎬 عرض شاشة التطبيق</button></div>
+                <div class="pres-btn-area"><button class="btn btn-sm btn-pres" onclick="togglePresentation('mobile')">🎬 عرض شاشة التطبيق</button></div>
             </div>
             <div class="admin-side">
                 <div class="frame tablet">
-                    <div class="app-header bg-l3"><span>Dashboard & Analytics</span><button id="store-toggle-3" class="btn btn-sm btn-outline" style="color:#fff;border-color:#fff" onclick="toggleStore(3)">إغلاق المحل</button></div>
+                    <div class="app-header bg-l3"><span>Dashboard & Analytics</span><button id="store-toggle-3" class="btn btn-sm btn-danger" onclick="toggleStore(3)">إغلاق المحل</button></div>
                     <div class="app-body" style="flex-direction:row;gap:20px;background:var(--card-bg)">
                         <div style="flex:1.5;overflow-y:auto;padding-right:10px"><h4 class="mb-4 text-l3">الطلبات الحية</h4><div id="orders-list-3" style="display:flex;flex-direction:column;gap:12px"></div></div>
-                        <div style="flex:1.5;border-right:1px solid var(--btn-default-bg);padding-right:16px;display:flex;flex-direction:column">
+                        <div style="flex:1.5;border-right:1px solid var(--card-border);padding-right:16px;display:flex;flex-direction:column">
                             <div class="admin-tabs"><div class="admin-tab active" onclick="setAdminTab(3, 'analytics', this)">التحليلات 📊</div><div class="admin-tab" onclick="setAdminTab(3, 'customers', this)">العملاء</div><div class="admin-tab" onclick="setAdminTab(3, 'menu', this)">القائمة</div></div>
                             <div id="admin-panel-3" style="flex:1;overflow-y:auto"></div>
                         </div>
                     </div>
                     <div id="modal-invoice-3" class="modal-overlay"><div class="modal-content"><div id="invoice-content-3"></div><button class="btn btn-block bg-l3 mt-2" style="color:#fff" onclick="closeModal(3, 'invoice')">طباعة</button></div></div>
                 </div>
-                <div class="pres-btn-area"><button class="btn btn-sm btn-outline text-l3" onclick="togglePresentation('tablet')">🎬 عرض شاشة المحل</button></div>
+                <div class="pres-btn-area"><button class="btn btn-sm btn-pres" onclick="togglePresentation('tablet')">🎬 عرض شاشة المحل</button></div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-/* --- 1. BASE DATA --- */
+/* --- 1. BASE DATA (Fixed Images) --- */
 const baseProducts = [
     {id:1, name:'طبق شرقي مشكل', price:120, img:'https://placehold.co/400x300/F8FAFC/78350F?text=Mix+Sweets', badge:'الأكثر مبيعاً'},
     {id:2, name:'كنافة نابلسية', price:90, img:'https://placehold.co/400x300/F8FAFC/F59E0B?text=Kunafa'},
@@ -457,11 +485,16 @@ const baseProducts = [
 ];
 
 const l3Offers = [
-    {id:1, title:'خصم 10 ج.م', pts:20, type:'discount', val:10}, {id:2, title:'خصم 20 ج.م', pts:40, type:'discount', val:20}, 
-    {id:3, title:'توصيل مجاني', pts:50, type:'discount', val:30}, {id:4, title:'قهوة مجاناً', pts:30, type:'item', val:20}, 
-    {id:5, title:'كب كيك هدية', pts:60, type:'item', val:11}, {id:6, title:'خصم 10%', pts:100, type:'discount', val:50}, 
-    {id:7, title:'طبق أم علي', pts:120, type:'item', val:7}, {id:8, title:'نصف كيلو مشكل', pts:300, type:'item', val:1}, 
-    {id:9, title:'تورتة عيد ميلاد', pts:800, type:'item', val:3}, {id:10, title:'بوكس العائلة', pts:500, type:'item', val:16}
+    {id:1, title:'خصم 10 ج.م', pts:20, type:'discount', val:10}, 
+    {id:2, title:'خصم 20 ج.م', pts:40, type:'discount', val:20}, 
+    {id:3, title:'توصيل مجاني', pts:50, type:'discount', val:30},
+    {id:4, title:'قهوة مجاناً', pts:30, type:'item', val:20}, 
+    {id:5, title:'كب كيك هدية', pts:60, type:'item', val:11}, 
+    {id:6, title:'خصم 10%', pts:100, type:'discount', val:50}, 
+    {id:7, title:'طبق أم علي', pts:120, type:'item', val:7}, 
+    {id:8, title:'نصف كيلو مشكل', pts:300, type:'item', val:1}, 
+    {id:9, title:'تورتة عيد ميلاد', pts:800, type:'item', val:3},
+    {id:10, title:'بوكس العائلة', pts:500, type:'item', val:16}
 ];
 
 const dummyCustomers = [
@@ -617,7 +650,7 @@ function renderCartL1() {
     const html = d.cart.length===0 ? '<p class="muted center">السلة فارغة</p>' : d.cart.map((item,i) => `
         <div class="card mb-2 flex-between">
             <div><div class="bold">${item.name}</div><div class="small muted">${item.weightLabel}</div></div>
-            <div><div class="bold text-l1">${item.finalPrice} ج.م</div><button class="btn btn-sm text-danger" onclick="removeFromCart(1, ${i})"><i class="fas fa-trash"></i></button></div>
+            <div><div class="bold text-l1">${item.finalPrice} ج.م</div><button class="btn btn-sm btn-danger" onclick="removeFromCart(1, ${i})"><i class="fas fa-trash"></i></button></div>
         </div>
     `).join('');
     const form = d.cart.length>0 ? `
@@ -660,6 +693,7 @@ function renderClientApp(lvl) {
         headerUser.textContent = `أهلاً، ${d.user.name}`;
         loginBtn.textContent = 'خروج';
         loginBtn.onclick = () => logout(lvl);
+        loginBtn.classList.remove('hidden');
     } else {
         headerUser.textContent = 'أهلاً، زائر';
         loginBtn.textContent = 'دخول';
@@ -669,20 +703,12 @@ function renderClientApp(lvl) {
     if(d.currentView === 'home') {
         let h = (lvl===3&&d.promo) ? `<div class="card mb-4" style="background:#DCFCE7;border:1px solid var(--success);color:var(--success);text-align:center;font-weight:700">🎉 ${d.promo}</div>` : '';
         if(d.user) h += `<div class="flex-between mb-4"><span class="chip" onclick="nav(${lvl}, 'profile')">👤 حسابي</span><span class="chip" onclick="nav(${lvl}, 'address')">🏠 عناويني</span>${lvl===3 ? `<span class="chip" onclick="nav(${lvl}, 'wallet')">🎁 المكافآت</span>` : ''}</div>`;
-        
-        // Skeleton Animation before loading products
-        body.innerHTML = Array(4).fill(0).map(()=>`<div class="card mb-2" style="height:100px;display:flex;gap:10px"><div class="skeleton" style="width:80px;height:80px"></div><div style="flex:1"><div class="skeleton mb-2" style="width:60%;height:20px"></div><div class="skeleton" style="width:40%;height:15px"></div></div></div>`).join('');
-        
-        setTimeout(() => {
-            body.innerHTML = h + d.menu.filter(p=>p.active).map(p => `
-            <div class="card product-card mb-2">
-                ${p.badge ? `<span class="prod-badge">${p.badge}</span>` : ''}
-                <img src="${p.img}" class="p-img" onclick="openProductModal(${lvl}, ${p.id})">
-                <div class="p-info"><div class="flex-between"><div class="p-title">${p.name}</div><i class="fas fa-heart ${d.fav.includes(p.id)?'text-danger':'muted'}" onclick="toggleFav(${lvl}, ${p.id})"></i></div>
-                <div class="p-desc">سعر الكيلو: ${p.price} ج.م</div>
-                <div class="flex-between mt-2"><select id="w-${lvl}-${p.id}" class="select" style="width:auto;padding:4px;margin:0;font-size:0.8rem"><option value="0.25">¼ كجم</option><option value="0.5">½ كجم</option><option value="1">1 كجم</option></select><button class="btn btn-sm ${color}" style="color:#fff" onclick="quickAdd(${lvl}, ${p.id})">إضافة</button></div></div></div>`).join('');
-        }, 300);
-
+        h += d.menu.filter(p=>p.active).map(p => `
+            <div class="card product-card mb-2"><img src="${p.img}" class="p-img" onclick="openProductModal(${lvl}, ${p.id})">
+            <div class="p-info"><div class="flex-between"><div class="p-title">${p.name}</div><i class="fas fa-heart ${d.fav.includes(p.id)?'text-danger':'muted'}" onclick="toggleFav(${lvl}, ${p.id})"></i></div>
+            <div class="p-desc">سعر الكيلو: ${p.price} ج.م</div>
+            <div class="flex-between mt-2"><select id="w-${lvl}-${p.id}" class="select" style="width:auto;padding:4px;margin:0;font-size:0.8rem"><option value="0.25">¼ كجم</option><option value="0.5">½ كجم</option><option value="1">1 كجم</option></select><button class="btn btn-sm ${color}" style="color:#fff" onclick="quickAdd(${lvl}, ${p.id})">إضافة</button></div></div></div>`).join('');
+        body.innerHTML = h;
     } else if(d.currentView === 'cart') {
         let total = d.cart.reduce((s,i)=>s+i.finalPrice,0);
         // Apply Level 3 Discount
@@ -704,7 +730,7 @@ function renderClientApp(lvl) {
         const items = d.cart.map((item,i) => {
             const isReward = item.isReward;
             const priceClass = item.finalPrice < 0 ? 'text-success' : txtC;
-            return `<div class="card mb-2 flex-between" style="${isReward?'border-right:4px solid var(--success)':''}"><div><div class="bold">${item.name}</div><div class="small muted">${item.weightLabel}</div></div><div><div class="bold ${priceClass}">${item.finalPrice} ج.م</div><button class="btn btn-sm text-danger" onclick="removeFromCart(${lvl}, ${i})"><i class="fas fa-trash"></i></button></div></div>`;
+            return `<div class="card mb-2 flex-between" style="${isReward?'border-right:4px solid var(--success)':''}"><div><div class="bold">${item.name}</div><div class="small muted">${item.weightLabel}</div></div><div><div class="bold ${priceClass}">${item.finalPrice} ج.م</div><button class="btn btn-sm btn-danger" onclick="removeFromCart(${lvl}, ${i})"><i class="fas fa-trash"></i></button></div></div>`;
         }).join('');
         
         const checkout = !d.user ? `<div class="card mt-4 center"><p class="text-danger mb-2">يرجى تسجيل الدخول</p><button class="btn btn-sm btn-outline" onclick="openLogin(${lvl})">دخول</button></div>` : `
